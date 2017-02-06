@@ -91,7 +91,7 @@ public class ApiController {
 		
 		// pruefen ob benutzer bereits vorhanden ist
 		if (userRepo.findByUsername(username) == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not exists. Create it first");
+			RestErrorMessage error = new RestErrorMessage(301, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
