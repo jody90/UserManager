@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS user (
   id int(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,
   username varchar(45) NOT NULL,
   password varchar(45) NOT NULL,
