@@ -1,17 +1,24 @@
-package com.sortimo.dataObjects;
+package com.sortimo.dao;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class User {
-	
+
+	@Id
 	private String username;
-	
+
 	private String firstname;
-	
+
 	private String password;
-	
+
 	private String lastname;
-	
+
 	private String email;
 	
+	protected User() {}
+
 	public User(String username, String firstname, String password, String lastname, String email) {
 		this.setUsername(username);
 		this.setFirstname(firstname);
@@ -65,5 +72,4 @@ public class User {
 		return "User [username=" + username + ", firstname=" + firstname + ", password=" + password + ", lastname="
 				+ lastname + ", email=" + email + "]";
 	}
-	
 }

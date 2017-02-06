@@ -1,15 +1,11 @@
 package com.sortimo.repositories;
 
-import java.util.List;
 
-import com.sortimo.dataObjects.User;
+import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository {
+import com.sortimo.dao.User;
+public interface UserRepository extends CrudRepository<User, Long> {
 	
-	void saveUser(User user);
+	User findByUsername(String username);
 	
-	User getUserByUsername(String username);
-	
-	List<User> getAllUsers();
-
 }
