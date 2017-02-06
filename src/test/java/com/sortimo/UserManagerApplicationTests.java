@@ -31,23 +31,23 @@ public class UserManagerApplicationTests {
     private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(),
             Charset.forName("utf8"));
-	
+
     private MockMvc mockMvc;
-    
+
     @Autowired
     private WebApplicationContext webApplicationContext;
 
 	ObjectMapper mapper = new ObjectMapper();
-	
+
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
     }
-    
+
     @Test
     public void runTest() throws Exception {
     	User user = new User("demouser", "Demo", "geheim", "User", "demo@user.com");
-    	
+
     	createUser(user);
     	getUser(user.getUsername(), "isOk");
     	User updatedUser = updateUser(user.getUsername());
@@ -55,12 +55,12 @@ public class UserManagerApplicationTests {
     	deleteUser(updatedUser.getUsername());
     	getUser(user.getUsername(), "isNotFound");
     }
-    
+
 	public void createUser(User user) throws Exception {
-		
+
 		String jsonInString = mapper.writeValueAsString(user);
-		
-		mockMvc.perform(post("/api/user/register")
+
+		mockMvc.perform(post("/api/user")
 			.content(jsonInString)
 			.contentType(contentType))
 			.andExpect(status().isCreated());
@@ -77,25 +77,25 @@ public class UserManagerApplicationTests {
 			.andExpect(status().isNotFound());
 		}
 	}
-	
+
 	public void deleteUser(String username) throws Exception {
-		
+
 		mockMvc.perform(delete("/api/user/" + username))
 		    .andExpect(status().isOk());
 	}
-	
+
 	public User updateUser(String username) throws Exception {
-		
+
 		User user = new User(username, "DemoTest", "geheimer", "UserTest", "demouser@user.com");
-		
+
 		String jsonInString = mapper.writeValueAsString(user);
-		
+
 		mockMvc.perform(put("/api/user/" + username)
 			.content(jsonInString)
 			.contentType(contentType))
 			.andExpect(status().isOk());
-		
+
 		return user;
 	}
-	
+
 }
