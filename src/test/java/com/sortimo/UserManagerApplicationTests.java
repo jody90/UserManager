@@ -1,6 +1,5 @@
 package com.sortimo;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,8 +63,14 @@ public class UserManagerApplicationTests {
 			.content(jsonInString)
 			.contentType(contentType))
 			.andExpect(status().isCreated());
-	}
 
+//		mockMvc.perform(post("/api/user")
+//			.content(jsonInString)
+//			.contentType(contentType))
+//			.andExpect(status().isCreated())
+//			.andExpect(jsonPath("$[0].username", is("demouser")));
+	}
+	
 	public void getUser(String username, String expectedResponseState) throws Exception {
 
 		if (expectedResponseState.equals("isOk")) {

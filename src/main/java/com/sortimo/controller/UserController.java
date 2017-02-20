@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sortimo.dao.User;
 import com.sortimo.repositories.UserRepository;
-import com.sortimo.services.RestMessage;
 import com.sortimo.services.RestErrorMessage;
+import com.sortimo.services.RestMessage;
 
 @RestController
-@RequestMapping(value="/api")
-public class ApiController {
+@RequestMapping(value="/api/user")
+public class UserController {
 
 	@Autowired
 	private UserRepository userRepo;
 
-	@RequestMapping(value="/user", method = RequestMethod.POST, consumes="application/json", produces="application/json")
+	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> register(@RequestBody User user, HttpServletRequest request) throws MalformedURLException {
 
 		// pruefen ob benutzer bereits vorhanden ist
@@ -52,22 +52,38 @@ public class ApiController {
 
 	}
 
-	@RequestMapping(value="/user/{username}", method = RequestMethod.GET, produces="application/json")
+	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 
 		User user = userRepo.findByUsername(username);
 
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(409, "User [" + username + "] not found");
+			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not found");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// response zurueck geben
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
+	
+	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getAllUser() {
+		
+		Iterable<User> usersCollection = userRepo.findAll();
 
-	@RequestMapping(value="/user/{username}", method = RequestMethod.DELETE, produces="application/json")
+		// pruefen ob benutzer vorhanden ist
+		if (usersCollection == null) {
+			RestErrorMessage error = new RestErrorMessage(404, "No Users found");
+			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+		}
+
+		// response zurueck geben
+		return new ResponseEntity<Iterable<User>>(usersCollection, HttpStatus.OK);
+		
+	}
+
+	@RequestMapping(value="/{username}", method = RequestMethod.DELETE, produces="application/json")
 	public @ResponseBody ResponseEntity<?> deleteUser(@PathVariable String username) {
 
 		User user = userRepo.findByUsername(username);
@@ -86,7 +102,7 @@ public class ApiController {
 		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
 	}
 
-	@RequestMapping(value="/user/{username}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
+	@RequestMapping(value="/{username}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> update(@RequestBody User user, @PathVariable String username,  HttpServletRequest request) throws MalformedURLException {
 
 		// pruefen ob benutzer bereits vorhanden ist
