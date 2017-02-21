@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sortimo.dao.Right;
+import com.sortimo.model.Right;
 import com.sortimo.repositories.RightRepository;
 import com.sortimo.services.RestErrorMessage;
 import com.sortimo.services.RestMessage;

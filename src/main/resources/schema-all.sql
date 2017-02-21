@@ -18,3 +18,4 @@ CREATE TABLE IF NOT EXISTS rights (
   name varchar(120) UNIQUE NOT NULL,
   description LONGTEXT NULL
 );
+

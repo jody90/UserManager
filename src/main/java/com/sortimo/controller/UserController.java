@@ -3,6 +3,7 @@ package com.sortimo.controller;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sortimo.dao.User;
+import com.sortimo.model.User;
 import com.sortimo.repositories.UserRepository;
 import com.sortimo.services.RestErrorMessage;
 import com.sortimo.services.RestMessage;
+import com.sortimo.services.Sample;
 
 @RestController
 @RequestMapping(value="/api/user")
@@ -27,7 +29,10 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepo;
-
+	
+	@Autowired
+	private Sample sample;
+	
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> register(@RequestBody User user, HttpServletRequest request) throws MalformedURLException {
 
@@ -36,7 +41,7 @@ public class UserController {
 			RestErrorMessage error = new RestErrorMessage(404, "User [" + user.getUsername() + "] already defined");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.CONFLICT);
 		}
-
+		
 		// Benutzer speichern
 		userRepo.save(user);
 
@@ -71,6 +76,8 @@ public class UserController {
 	public @ResponseBody ResponseEntity<?> getAllUser() {
 		
 		Iterable<User> usersCollection = userRepo.findAll();
+		
+		sample.setName("JODY");
 
 		// pruefen ob benutzer vorhanden ist
 		if (usersCollection == null) {

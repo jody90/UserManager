@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sortimo.dao.User;
+import com.sortimo.model.User;
 
 import org.junit.Before;
 
@@ -63,12 +63,6 @@ public class UserManagerApplicationTests {
 			.content(jsonInString)
 			.contentType(contentType))
 			.andExpect(status().isCreated());
-
-//		mockMvc.perform(post("/api/user")
-//			.content(jsonInString)
-//			.contentType(contentType))
-//			.andExpect(status().isCreated())
-//			.andExpect(jsonPath("$[0].username", is("demouser")));
 	}
 	
 	public void getUser(String username, String expectedResponseState) throws Exception {

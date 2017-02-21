@@ -1,7 +1,8 @@
 package com.sortimo.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import com.sortimo.dao.Role;
+
+import com.sortimo.model.Role;
 
 public interface RoleRepository extends CrudRepository<Role, Long> {
 

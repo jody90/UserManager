@@ -1,4 +1,4 @@
-package com.sortimo.dao;
+package com.sortimo.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
