@@ -3,3 +3,9 @@ spring:
   datasource.username: root
   datasource.password: root
   datasource.driver-class-name: com.mysql.jdbc.Driver
+  
+logging:
+  level.org.springframework.web: INFO
+  level.guru.springframework.blogs.controllers: INFO
+  level.org.hibernate: ERROR
+  file: logs/spring-boot-logging.log
