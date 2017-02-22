@@ -1,14 +1,21 @@
 package com.sortimo.model;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
 
 @Entity
 @Table(name="users")
 public class User {
 
-	@Id
 	private String username;
 
 	private String firstname;
@@ -20,7 +27,19 @@ public class User {
 	private String email;
 	
 	protected User() {}
-
+	
+	private Set<Right> rights;
+	
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))
+    public Set<Right> getRights() {
+        return rights;
+    }
+    
+    public void setRights(Set<Right> rights) {
+    	this.rights = rights;
+    }
+	
 	public User(String username, String firstname, String password, String lastname, String email) {
 		this.setUsername(username);
 		this.setFirstname(firstname);
@@ -28,7 +47,18 @@ public class User {
 		this.setLastname(lastname);
 		this.setEmail(email);
 	}
+    
+	public User(String username, String firstname, String password, String lastname, String email, Set<Right> rights) {
+		this.setUsername(username);
+		this.setFirstname(firstname);
+		this.setPassword(password);
+		this.setLastname(lastname);
+		this.setEmail(email);
+		this.setRights(rights);
+	}
 
+	@Id
+	@Column(name = "username", unique = true, nullable = false)
 	public String getUsername() {
 		return username;
 	}

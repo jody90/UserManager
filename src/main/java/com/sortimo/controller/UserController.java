@@ -3,6 +3,8 @@ package com.sortimo.controller;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sortimo.model.Right;
 import com.sortimo.model.User;
 import com.sortimo.repositories.UserRepository;
 import com.sortimo.services.RestErrorMessage;
@@ -79,14 +82,24 @@ public class UserController {
 		
 		sample.setName("JODY");
 
+		Right right = new Right("demoRight", "demoRight Description");
+		
+		Set<Right> rights = new HashSet<>();
+		rights.add(right);
+		
+    	User user = new User("demouser", "Demo", "geheim", "User", "demo@user.com", rights);
+    	
+    	userRepo.save(user);
+		
+		
 		// pruefen ob benutzer vorhanden ist
 		if (usersCollection == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "No Users found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
+		RestErrorMessage error = new RestErrorMessage(404, "No Users found");
+		return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 
 		// response zurueck geben
-		return new ResponseEntity<Iterable<User>>(usersCollection, HttpStatus.OK);
+//		return new ResponseEntity<Iterable<User>>(usersCollection, HttpStatus.OK);
 		
 	}
 

@@ -19,3 +19,9 @@ CREATE TABLE IF NOT EXISTS rights (
   description LONGTEXT NULL
 );
 
+CREATE TABLE IF NOT EXISTS users_rights (
+  username varchar(45) NOT NULL,
+  right_id int(11) NOT NULL,
+  PRIMARY KEY (username, right_id)
+);
+

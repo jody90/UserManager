@@ -7,6 +7,7 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,8 @@ import com.sortimo.services.RestMessage;
 @RequestMapping(value="/api/right")
 public class RightController {
 
+//	Pageable pageable;
+	
 	@Autowired
 	private RightRepository rightRepo;
 
@@ -36,8 +39,8 @@ public class RightController {
 		if (rightRepo.findByName(right.getName()) != null) {
 			RestErrorMessage error = new RestErrorMessage(404, "Right [" + right.getName() + "] already defined");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.CONFLICT);
-		}
-
+		}	
+		
 		// Benutzer speichern
 		rightRepo.save(right);
 
@@ -67,7 +70,7 @@ public class RightController {
 		// response zurueck geben
 		return new ResponseEntity<Right>(right, HttpStatus.OK);
 	}
-	
+		
 	@RequestMapping(method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody ResponseEntity<?> getAllRights() {
 		
