@@ -29,6 +29,29 @@ public class RoleController {
 	@Autowired
 	private RoleRepository roleRepo;
 
+	/**
+	 * Liest alle Rollen aus der Datenbank
+	 * 
+	 * @return Collection von Role Objekten
+	 */
+	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getAllRoles() {
+		
+		Iterable<Role> rolesCollection = roleRepo.findAll();
+
+		// response zurueck geben
+		return new ResponseEntity<Iterable<Role>>(rolesCollection, HttpStatus.OK);
+		
+	}
+	
+	/**
+	 * Fuegt eine Rolle hinzu
+	 * 
+	 * @param role
+	 * @param request
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> addRole(@RequestBody Role role, HttpServletRequest request) throws MalformedURLException {
 
@@ -53,6 +76,12 @@ public class RoleController {
 
 	}
 	
+	/**
+	 * Liest eine Rolle aus der Datenbank
+	 * 
+	 * @param rolename
+	 * @return Role Object
+	 */
 	@RequestMapping(value="/{rolename}", method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody ResponseEntity<?> getRole(@PathVariable String rolename) {
 
@@ -67,23 +96,13 @@ public class RoleController {
 		// response zurueck geben
 		return new ResponseEntity<Role>(role, HttpStatus.OK);
 	}
-	
-	@RequestMapping(method = RequestMethod.GET, produces="application/json")
-	public @ResponseBody ResponseEntity<?> getAllRoles() {
-		
-		Iterable<Role> rolesCollection = roleRepo.findAll();
 
-		// pruefen ob benutzer vorhanden ist
-		if (rolesCollection == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "No Roles found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
-		}
-
-		// response zurueck geben
-		return new ResponseEntity<Iterable<Role>>(rolesCollection, HttpStatus.OK);
-		
-	}
-
+	/**
+	 * Loescht eine Rolle aus der Datenbank
+	 * 
+	 * @param rolename
+	 * @return
+	 */
 	@RequestMapping(value="/{rolename}", method = RequestMethod.DELETE, produces="application/json")
 	public @ResponseBody ResponseEntity<?> deleteRole(@PathVariable String rolename) {
 
@@ -103,6 +122,15 @@ public class RoleController {
 		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
 	}
 
+	/**
+	 * Dated eine Rolle in der Datenbank ab
+	 * 
+	 * @param role
+	 * @param rolename
+	 * @param request
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	@RequestMapping(value="/{rolename}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> updateRole(@RequestBody Role role, @PathVariable String rolename,  HttpServletRequest request) throws MalformedURLException {
 
@@ -110,7 +138,7 @@ public class RoleController {
 		
 		// pruefen ob Rolle bereits vorhanden ist
 		if (storedRole == null) {
-			RestErrorMessage error = new RestErrorMessage(301, "Role [" + rolename + "] not exists. Create it first");
+			RestErrorMessage error = new RestErrorMessage(404, "Role [" + rolename + "] not exists. Create it first");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		

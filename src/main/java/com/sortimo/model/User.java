@@ -28,19 +28,12 @@ public class User {
 
 	private String email;
 	
-	protected User() {}
-	
 	private Set<Right> rights = new HashSet<Right>(0);
 	
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "right_id"))   
-    public Set<Right> getRights() {
-        return rights;
-    }
-    
-    public void setRights(Set<Right> rights) {
-    	this.rights = rights;
-    }
+	private Set<Role> roles = new HashSet<Role>(0);
+
+	protected User() {}
+	
 	
 	public User(String username, String firstname, String password, String lastname, String email) {
 		this.setUsername(username);
@@ -50,15 +43,26 @@ public class User {
 		this.setEmail(email);
 	}
     
-	public User(String username, String firstname, String password, String lastname, String email, Set<Right> rights) {
-		this.setUsername(username);
-		this.setFirstname(firstname);
-		this.setPassword(password);
-		this.setLastname(lastname);
-		this.setEmail(email);
-		this.setRights(rights);
-	}
-
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "right_id"))   
+    public Set<Right> getRights() {
+        return rights;
+    }
+    
+    public void setRights(Set<Right> rights) {
+    	this.rights = rights;
+    }
+    
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "role_id"))   
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    
+    public void setRoles(Set<Role> roles) {
+    	this.roles = roles;
+    }
+	
 	@Id
 	@Column(name = "username", unique = true, nullable = false)
 	public String getUsername() {

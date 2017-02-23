@@ -30,7 +30,36 @@ public class RightController {
 	
 	@Autowired
 	private RightRepository rightRepo;
+	
+	/**
+	 * Liest alle Rechte aus der Datenbank
+	 * 
+	 * @return Collection von Right Objekten
+	 */
+	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getAllRights() {
+		
+		Iterable<Right> rightsCollection = rightRepo.findAll();
 
+		// pruefen ob benutzer vorhanden ist
+		if (rightsCollection == null) {
+			RestErrorMessage error = new RestErrorMessage(404, "No Rights found");
+			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+		}
+
+		// response zurueck geben
+		return new ResponseEntity<Iterable<Right>>(rightsCollection, HttpStatus.OK);
+		
+	}
+
+	/**
+	 * Fuegt ein neues Recht in die Datenbank ein
+	 * 
+	 * @param right
+	 * @param request
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> addRight(@RequestBody Right right, HttpServletRequest request) throws MalformedURLException {
 
@@ -55,6 +84,12 @@ public class RightController {
 
 	}
 	
+	/**
+	 * Liest ein Recht aus der Datenbank
+	 * 
+	 * @param rightname
+	 * @return Right Object
+	 */
 	@RequestMapping(value="/{rightname}", method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody ResponseEntity<?> getRight(@PathVariable String rightname) {
 
@@ -69,23 +104,13 @@ public class RightController {
 		// response zurueck geben
 		return new ResponseEntity<Right>(right, HttpStatus.OK);
 	}
-		
-	@RequestMapping(method = RequestMethod.GET, produces="application/json")
-	public @ResponseBody ResponseEntity<?> getAllRights() {
-		
-		Iterable<Right> rightsCollection = rightRepo.findAll();
 
-		// pruefen ob benutzer vorhanden ist
-		if (rightsCollection == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "No Rights found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
-		}
-
-		// response zurueck geben
-		return new ResponseEntity<Iterable<Right>>(rightsCollection, HttpStatus.OK);
-		
-	}
-
+	/**
+	 * Loescht ein Recht aus der Datenbank
+	 * 
+	 * @param rightname
+	 * @return
+	 */
 	@RequestMapping(value="/{rightname}", method = RequestMethod.DELETE, produces="application/json")
 	public @ResponseBody ResponseEntity<?> deleteRight(@PathVariable String rightname) {
 
@@ -105,6 +130,15 @@ public class RightController {
 		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
 	}
 
+	/**
+	 * Dated ein Recht in der Datenbank ab
+	 * 
+	 * @param right
+	 * @param rightname
+	 * @param request
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	@RequestMapping(value="/{rightname}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
 	public @ResponseBody ResponseEntity<?> updateRight(@RequestBody Right right, @PathVariable String rightname,  HttpServletRequest request) throws MalformedURLException {
 
@@ -112,7 +146,7 @@ public class RightController {
 		
 		// pruefen ob Rolle bereits vorhanden ist
 		if (storedRight == null) {
-			RestErrorMessage error = new RestErrorMessage(301, "Right [" + rightname + "] not exists. Create it first");
+			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightname + "] not exists. Create it first");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
