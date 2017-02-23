@@ -1,10 +1,12 @@
 package com.sortimo.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -28,10 +30,10 @@ public class User {
 	
 	protected User() {}
 	
-	private Set<Right> rights;
+	private Set<Right> rights = new HashSet<Right>(0);
 	
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "right_id"))   
     public Set<Right> getRights() {
         return rights;
     }
@@ -102,6 +104,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [username=" + username + ", firstname=" + firstname + ", password=" + password + ", lastname="
-				+ lastname + ", email=" + email + "]";
+				+ lastname + ", email=" + email + ", rights=" + rights + "]";
 	}
+	
 }

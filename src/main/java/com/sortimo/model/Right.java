@@ -1,27 +1,22 @@
 package com.sortimo.model;
 
-import java.util.Set;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="rights")
 public class Right {
 	
-	private Integer id;
+	private Long id;
 	
 	private String name;
 	
 	private String description;
-	
-	private Set<User> persons;
 	
 	protected Right() {}
 	
@@ -30,24 +25,15 @@ public class Right {
 		this.description = description;
 	}
 	
-	@ManyToMany(mappedBy = "rights")
-	public Set<User> getPersons() {
-		return persons;
-	}
-	
-	public void setPersons(Set<User> persons) {
-		this.persons = persons;
-	}
-	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id", unique = true, nullable = false)
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
