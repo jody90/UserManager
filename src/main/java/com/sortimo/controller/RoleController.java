@@ -68,7 +68,7 @@ public class RoleController {
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/user/" + role.getName());
+	    URI locationUri = URI.create(hostUri + "/api/user/" + role.getId());
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben
@@ -79,17 +79,40 @@ public class RoleController {
 	/**
 	 * Liest eine Rolle aus der Datenbank
 	 * 
-	 * @param rolename
+	 * @param roleId
 	 * @return Role Object
 	 */
-	@RequestMapping(value="/{rolename}", method = RequestMethod.GET, produces="application/json")
-	public @ResponseBody ResponseEntity<?> getRole(@PathVariable String rolename) {
+	@RequestMapping(value="/{roleId}", method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getRole(@PathVariable Long roleId) {
 
-		Role role = roleRepo.findByName(rolename);
+		Role role = roleRepo.findOne(roleId);
 
 		// pruefen ob benutzer vorhanden ist
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + rolename + "] not found");
+			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not found");
+			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+		}
+
+		// response zurueck geben
+		return new ResponseEntity<Role>(role, HttpStatus.OK);
+	}
+	
+
+	
+	
+	
+	
+	@RequestMapping(value="/{roleId}/user", method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getUsersRole(@PathVariable Long roleId) {
+
+//		Role role = roleRepo.findByName(rolename);
+		Role role = roleRepo.findOne(roleId);
+		
+		System.out.println("Role: " + role);
+
+		// pruefen ob benutzer vorhanden ist
+		if (role == null) {
+			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not found");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
@@ -100,23 +123,23 @@ public class RoleController {
 	/**
 	 * Loescht eine Rolle aus der Datenbank
 	 * 
-	 * @param rolename
+	 * @param roleId
 	 * @return
 	 */
-	@RequestMapping(value="/{rolename}", method = RequestMethod.DELETE, produces="application/json")
-	public @ResponseBody ResponseEntity<?> deleteRole(@PathVariable String rolename) {
+	@RequestMapping(value="/{roleId}", method = RequestMethod.DELETE, produces="application/json")
+	public @ResponseBody ResponseEntity<?> deleteRole(@PathVariable Long roleId) {
 
-		Role role = roleRepo.findByName(rolename);
+		Role role = roleRepo.findOne(roleId);
 
 		// pruefen ob Rolle vorhanden ist
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + rolename + "] not found! Cannot delete");
+			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not found! Cannot delete");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		roleRepo.delete(role);
 
-		RestMessage message = new RestMessage(200, "Role [" + rolename + "] successfully deleted");
+		RestMessage message = new RestMessage(200, "Role [" + roleId + "] successfully deleted");
 
 		// response zurueck geben
 		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
@@ -126,19 +149,19 @@ public class RoleController {
 	 * Dated eine Rolle in der Datenbank ab
 	 * 
 	 * @param role
-	 * @param rolename
+	 * @param roleId
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	@RequestMapping(value="/{rolename}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
-	public @ResponseBody ResponseEntity<?> updateRole(@RequestBody Role role, @PathVariable String rolename,  HttpServletRequest request) throws MalformedURLException {
+	@RequestMapping(value="/{roleId}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
+	public @ResponseBody ResponseEntity<?> updateRole(@RequestBody Role role, @PathVariable Long roleId,  HttpServletRequest request) throws MalformedURLException {
 
-		Role storedRole = roleRepo.findByName(rolename);
+		Role storedRole = roleRepo.findOne(roleId);
 		
 		// pruefen ob Rolle bereits vorhanden ist
 		if (storedRole == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + rolename + "] not exists. Create it first");
+			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not exists. Create it first");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
@@ -151,7 +174,7 @@ public class RoleController {
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/role/" + role.getName());
+	    URI locationUri = URI.create(hostUri + "/api/role/" + role.getId());
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben

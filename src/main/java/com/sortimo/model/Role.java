@@ -16,10 +16,10 @@ public class Role {
 	private String name;
 	
 	private String description;
-	
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(unique = true, nullable = false)
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name="id", unique = true, nullable = false)
 	public Long getId() {
 		return id;
 	}

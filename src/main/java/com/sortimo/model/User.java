@@ -34,7 +34,6 @@ public class User {
 
 	protected User() {}
 	
-	
 	public User(String username, String firstname, String password, String lastname, String email) {
 		this.setUsername(username);
 		this.setFirstname(firstname);
@@ -54,7 +53,7 @@ public class User {
     }
     
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "role_id"))   
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     public Set<Role> getRoles() {
         return roles;
     }
