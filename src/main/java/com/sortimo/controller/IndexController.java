@@ -13,7 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class IndexController {
 
-	@RequestMapping("/")
+	/**
+	 * Leitet einen Request von Application Root auf Swagger-UI um
+	 * 
+	 * @param response
+	 * @param request
+	 */
+//	@RequestMapping("/")
 	public void method(HttpServletResponse response, HttpServletRequest request) {
 		
 		// Http Header fuer response vorbereiten
