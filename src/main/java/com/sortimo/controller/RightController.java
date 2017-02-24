@@ -87,17 +87,17 @@ public class RightController {
 	/**
 	 * Liest ein Recht aus der Datenbank
 	 * 
-	 * @param rightname
+	 * @param rightId
 	 * @return Right Object
 	 */
-	@RequestMapping(value="/{rightname}", method = RequestMethod.GET, produces="application/json")
-	public @ResponseBody ResponseEntity<?> getRight(@PathVariable String rightname) {
+	@RequestMapping(value="/{rightId}", method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getRight(@PathVariable Long rightId) {
 
-		Right right = rightRepo.findByName(rightname);
+		Right right = rightRepo.findOne(rightId);
 
 		// pruefen ob benutzer vorhanden ist
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightname + "] not found");
+			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not found");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
@@ -108,23 +108,23 @@ public class RightController {
 	/**
 	 * Loescht ein Recht aus der Datenbank
 	 * 
-	 * @param rightname
+	 * @param rightId
 	 * @return
 	 */
-	@RequestMapping(value="/{rightname}", method = RequestMethod.DELETE, produces="application/json")
-	public @ResponseBody ResponseEntity<?> deleteRight(@PathVariable String rightname) {
+	@RequestMapping(value="/{rightId}", method = RequestMethod.DELETE, produces="application/json")
+	public @ResponseBody ResponseEntity<?> deleteRight(@PathVariable Long rightId) {
 
-		Right right = rightRepo.findByName(rightname);
+		Right right = rightRepo.findOne(rightId);
 
 		// pruefen ob Rolle vorhanden ist
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightname + "] not found! Cannot delete");
+			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not found! Cannot delete");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		rightRepo.delete(right);
 
-		RestMessage message = new RestMessage(200, "Right [" + rightname + "] successfully deleted");
+		RestMessage message = new RestMessage(200, "Right [" + rightId + "] successfully deleted");
 
 		// response zurueck geben
 		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
@@ -134,19 +134,19 @@ public class RightController {
 	 * Dated ein Recht in der Datenbank ab
 	 * 
 	 * @param right
-	 * @param rightname
+	 * @param rightId
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{rightname}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
-	public @ResponseBody ResponseEntity<?> updateRight(@RequestBody Right right, @PathVariable String rightname,  HttpServletRequest request) throws MalformedURLException {
+	public @ResponseBody ResponseEntity<?> updateRight(@RequestBody Right right, @PathVariable Long rightId,  HttpServletRequest request) throws MalformedURLException {
 
-		Right storedRight = rightRepo.findByName(rightname);
+		Right storedRight = rightRepo.findOne(rightId);
 		
 		// pruefen ob Rolle bereits vorhanden ist
 		if (storedRight == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightname + "] not exists. Create it first");
+			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not exists. Create it first");
 			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
