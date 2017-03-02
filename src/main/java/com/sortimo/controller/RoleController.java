@@ -68,7 +68,7 @@ public class RoleController {
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/user/" + role.getId());
+	    URI locationUri = URI.create(hostUri + "/api/role/" + role.getId());
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben
@@ -86,29 +86,6 @@ public class RoleController {
 	public @ResponseBody ResponseEntity<?> getRole(@PathVariable Long roleId) {
 
 		Role role = roleRepo.findOne(roleId);
-
-		// pruefen ob benutzer vorhanden ist
-		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
-		}
-
-		// response zurueck geben
-		return new ResponseEntity<Role>(role, HttpStatus.OK);
-	}
-	
-
-	
-	
-	
-	
-	@RequestMapping(value="/{roleId}/user", method = RequestMethod.GET, produces="application/json")
-	public @ResponseBody ResponseEntity<?> getUsersRole(@PathVariable Long roleId) {
-
-//		Role role = roleRepo.findByName(rolename);
-		Role role = roleRepo.findOne(roleId);
-		
-		System.out.println("Role: " + role);
 
 		// pruefen ob benutzer vorhanden ist
 		if (role == null) {

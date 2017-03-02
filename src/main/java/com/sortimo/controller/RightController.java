@@ -76,7 +76,7 @@ public class RightController {
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/user/" + right.getName());
+	    URI locationUri = URI.create(hostUri + "/api/right/" + right.getName());
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben

@@ -19,14 +19,14 @@ public class IndexController {
 	 * @param response
 	 * @param request
 	 */
-//	@RequestMapping("/")
+	@RequestMapping("/")
 	public void method(HttpServletResponse response, HttpServletRequest request) {
 		
 		// Http Header fuer response vorbereiten
 		try {
 			URL url = new URL(request.getRequestURL().toString());
 			String hostUrl = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort() + "/swagger-ui.html";
-			System.out.println(hostUrl);
+			response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
 			response.sendRedirect(hostUrl);
 		} catch (MalformedURLException e) {
 			System.err.println("Fehler beim zusammenbau der redirect URL!");

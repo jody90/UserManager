@@ -31,7 +31,7 @@ public class User {
 	private Set<Right> rights = new HashSet<Right>(0);
 	
 	private Set<Role> roles = new HashSet<Role>(0);
-
+	
 	protected User() {}
 	
 	public User(String username, String firstname, String password, String lastname, String email) {

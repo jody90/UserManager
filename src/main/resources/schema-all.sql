@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   lastname varchar(45) NOT NULL,
   firstname varchar(45) NOT NULL,
   email varchar(45) NOT NULL
-);
+ );
 
 CREATE TABLE IF NOT EXISTS roles (
   id int(11) AUTO_INCREMENT NOT NULL PRIMARY KEY,

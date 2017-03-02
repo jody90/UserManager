@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,16 +45,42 @@ public class UserController {
 	 * 
 	 * @return Collection von User Objekten
 	 */
-	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	@RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('Testrolle4')")
 	public @ResponseBody ResponseEntity<?> getAllUser() {
 		
 		Iterable<User> usersCollection = userRepo.findAll();
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Set-Cookie","Cookie-Daten=Jody");
 				
 		// response zurueck geben
-		return new ResponseEntity<Iterable<User>>(usersCollection, HttpStatus.OK);
+		return new ResponseEntity<Iterable<User>>(usersCollection, headers, HttpStatus.OK);
 		
 	}
 	
+	/**
+	 * Liest einen Benutzer anhand von username aus Datenbank
+	 * 
+	 * @param username
+	 * @return User Object
+	 */
+	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasRole('Testrolle1')")
+	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
+		
+		User user = userRepo.findByUsername(username);
+		
+		// pruefen ob benutzer vorhanden ist
+		if (user == null) {
+			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not found");
+			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+		}
+		
+		// response zurueck geben
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
+
 	/**
 	 * Legt einen neuen Benutzer an
 	 * 
@@ -84,27 +111,6 @@ public class UserController {
 	    // response zurueck geben
 	    return new ResponseEntity<User>(user, headers, HttpStatus.CREATED);
 
-	}
-
-	/**
-	 * Liest einen Benutzer anhand von username aus Datenbank
-	 * 
-	 * @param username
-	 * @return User Object
-	 */
-	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
-	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
-
-		User user = userRepo.findByUsername(username);
-
-		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
-		}
-
-		// response zurueck geben
-		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 	
 	/**
