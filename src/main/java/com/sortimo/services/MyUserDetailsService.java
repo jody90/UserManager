@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sortimo.model.Role;
+import com.sortimo.repositories.RightRepository;
 import com.sortimo.repositories.UserRepository;
 
 @Service
@@ -23,13 +24,16 @@ public class MyUserDetailsService implements UserDetailsService {
 	@Autowired
 	private UserRepository userRepo;
 	
+	@Autowired
+	private RightRepository rightRepo;
+	
 	@Transactional(readOnly = true)
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 
 		com.sortimo.model.User user = userRepo.findByUsername(username);
 		
-		Collection<GrantedAuthority> authorities = buildUserAuthority(user.getRoles());
+		Collection<GrantedAuthority> authorities = buildUserAuthority(user.getRoles(), user);
 
 		return buildUserForAuthentication(user, authorities);
 	}
@@ -40,8 +44,17 @@ public class MyUserDetailsService implements UserDetailsService {
 
 	}
 
-	private Collection<GrantedAuthority> buildUserAuthority(Set<Role> roles) {
+	private Collection<GrantedAuthority> buildUserAuthority(Set<Role> roles, com.sortimo.model.User user) {
+		
+		System.out.println(user);
+		
 		Collection<GrantedAuthority> setAuths = new HashSet<GrantedAuthority>();
+		
+		// Alles Rechte zu einer Rolle holen
+//		for (Role userRole : roles) {
+//			rightRepo
+//		}
+		
 		
 		// Build user's authorities
 		for (Role userRole : roles) {

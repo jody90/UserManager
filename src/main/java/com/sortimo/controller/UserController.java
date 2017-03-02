@@ -66,7 +66,7 @@ public class UserController {
 	 * @return User Object
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasRole('Testrolle1')")
+	@PreAuthorize("hasAuthority('Testrolle1')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
 		User user = userRepo.findByUsername(username);
