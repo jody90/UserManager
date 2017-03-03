@@ -11,10 +11,15 @@ import javax.persistence.Table;
 @Table(name="rights")
 public class Right {
 	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(unique = true, nullable = false)
 	private Long id;
 	
+	@Column(name = "name", unique = true, nullable = true)
 	private String name;
 	
+	@Column(name = "description", nullable = true)	
 	private String description;
 	
 	protected Right() {}
@@ -23,10 +28,7 @@ public class Right {
 		this.name = name;
 		this.description = description;
 	}
-	
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(unique = true, nullable = false)
+
 	public Long getId() {
 		return id;
 	}

@@ -19,16 +19,21 @@ import javax.persistence.Table;
 @Table(name="roles")
 public class Role {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name="id", unique = true, nullable = false)
 	private Long id;
-	
+
+	@Column(name = "name", nullable = false, unique = true)	
 	private String name;
-	
+
+	@Column(name = "description", nullable = true)
 	private String description;
 	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "roles_rights", joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))   
 	private Set<Right> rights = new HashSet<Right>(0);
 	
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "roles_rights", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "right_id"))   
     public Set<Right> getRights() {
         return rights;
     }
@@ -37,9 +42,6 @@ public class Role {
     	this.rights = rights;
     }
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name="id", unique = true, nullable = false)
 	public Long getId() {
 		return id;
 	}

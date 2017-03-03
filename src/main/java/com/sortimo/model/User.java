@@ -18,18 +18,28 @@ import javax.persistence.Table;
 @Table(name="users")
 public class User {
 
+	@Id
+	@Column(name = "username", unique = true, nullable = false)
 	private String username;
 
+	@Column(name = "firstname", nullable = false)
 	private String firstname;
 
+	@Column(name = "password", nullable = false)
 	private String password;
 
+	@Column(name = "lastname", nullable = false)
 	private String lastname;
 
+	@Column(name = "email", nullable = false)
 	private String email;
 	
-	private Set<Right> rights = new HashSet<Right>(0);
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))   
+	public Set<Right> rights = new HashSet<Right>(0);
 	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private Set<Role> roles = new HashSet<Role>(0);
 	
 	protected User() {}
@@ -42,8 +52,6 @@ public class User {
 		this.setEmail(email);
 	}
     
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "right_id"))   
     public Set<Right> getRights() {
         return rights;
     }
@@ -52,8 +60,6 @@ public class User {
     	this.rights = rights;
     }
     
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     public Set<Role> getRoles() {
         return roles;
     }
@@ -62,8 +68,6 @@ public class User {
     	this.roles = roles;
     }
 	
-	@Id
-	@Column(name = "username", unique = true, nullable = false)
 	public String getUsername() {
 		return username;
 	}
