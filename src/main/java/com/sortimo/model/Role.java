@@ -1,10 +1,18 @@
 package com.sortimo.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -16,6 +24,18 @@ public class Role {
 	private String name;
 	
 	private String description;
+	
+	private Set<Right> rights = new HashSet<Right>(0);
+	
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "roles_rights", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "right_id"))   
+    public Set<Right> getRights() {
+        return rights;
+    }
+    
+    public void setRights(Set<Right> rights) {
+    	this.rights = rights;
+    }
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

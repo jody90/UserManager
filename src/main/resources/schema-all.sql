@@ -31,4 +31,10 @@ CREATE TABLE IF NOT EXISTS users_roles (
   PRIMARY KEY (username, role_id)
 );
 
+CREATE TABLE IF NOT EXISTS roles_rights (
+  role_id int(11) NOT NULL,
+  right_id int(11) NOT NULL,
+  PRIMARY KEY (role_id, right_id)
+);
+
 
