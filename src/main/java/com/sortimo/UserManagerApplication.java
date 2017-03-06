@@ -46,5 +46,5 @@ public class UserManagerApplication {
 				.version("2.0")
 				.build();
 	}
-	
+		
 }
