@@ -46,7 +46,7 @@ public class UserController {
 	 * @return Collection von User Objekten
 	 */
 	@RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAuthority('Testrolle4')")
+	@PreAuthorize("hasAuthority('demoRight')")
 	public @ResponseBody ResponseEntity<?> getAllUser() {
 		
 		Iterable<User> usersCollection = userRepo.findAll();
@@ -66,7 +66,7 @@ public class UserController {
 	 * @return User Object
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAuthority('Testrolle1')")
+	@PreAuthorize("hasAuthority('Testrecht1')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
 		User user = userRepo.findByUsername(username);

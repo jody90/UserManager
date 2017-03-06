@@ -1,8 +1,9 @@
 package com.sortimo.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,8 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sortimo.model.Right;
 import com.sortimo.model.Role;
-import com.sortimo.repositories.RightRepository;
 import com.sortimo.repositories.UserRepository;
 
 @Service
@@ -24,16 +25,13 @@ public class MyUserDetailsService implements UserDetailsService {
 	@Autowired
 	private UserRepository userRepo;
 	
-	@Autowired
-	private RightRepository rightRepo;
-	
 	@Transactional(readOnly = true)
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 
 		com.sortimo.model.User user = userRepo.findByUsername(username);
 		
-		Collection<GrantedAuthority> authorities = buildUserAuthority(user.getRoles(), user);
+		Collection<GrantedAuthority> authorities = buildUserAuthority(user);
 
 		return buildUserForAuthentication(user, authorities);
 	}
@@ -44,21 +42,35 @@ public class MyUserDetailsService implements UserDetailsService {
 
 	}
 
-	private Collection<GrantedAuthority> buildUserAuthority(Set<Role> roles, com.sortimo.model.User user) {
-		
-		System.out.println(user);
+	private Collection<GrantedAuthority> buildUserAuthority(com.sortimo.model.User user) {
 		
 		Collection<GrantedAuthority> setAuths = new HashSet<GrantedAuthority>();
 		
-		// Alles Rechte zu einer Rolle holen
-//		for (Role userRole : roles) {
-//			rightRepo
-//		}
+		List<Right> allRights = new ArrayList<>();
 		
+		if (user.getRights() != null) {
+			for (Right right : user.getRights()) {
+				allRights.add(right);
+			}
+		}
+		
+		if (user.getRoles() != null) {
+			for (Role role : user.getRoles()) {
+				if (role.getRights() != null) {
+					for (Right right : role.getRights()) {
+						if (!allRights.contains(right)) {
+							allRights.add(right);
+						}
+					}
+				}
+			}
+		}
+		
+		System.out.println("allRights: " + allRights);
 		
 		// Build user's authorities
-		for (Role userRole : roles) {
-			setAuths.add(new SimpleGrantedAuthority(userRole.getName()));
+		for (Right userRight : allRights) {
+			setAuths.add(new SimpleGrantedAuthority(userRight.getName()));
 		}		
 
 		return setAuths;
