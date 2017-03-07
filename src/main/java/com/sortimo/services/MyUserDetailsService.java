@@ -38,6 +38,8 @@ public class MyUserDetailsService implements UserDetailsService {
 
 	private User buildUserForAuthentication(com.sortimo.model.User user, Collection<GrantedAuthority> authorities) {
 
+//		return new JwtUser(user.getUsername(), user.getPassword(), authorities, true, user);
+		
 		return new User(user.getUsername(), user.getPassword(), true, true, true, true, authorities);
 
 	}
@@ -65,8 +67,6 @@ public class MyUserDetailsService implements UserDetailsService {
 				}
 			}
 		}
-		
-		System.out.println("allRights: " + allRights);
 		
 		// Build user's authorities
 		for (Right userRight : allRights) {

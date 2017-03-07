@@ -22,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.sortimo.converter.UserConverter;
+import com.sortimo.dto.UserDto;
+import com.sortimo.model.User;
+import com.sortimo.repositories.UserRepository;
 import com.sortimo.security.JwtAuthenticationRequest;
 import com.sortimo.security.JwtAuthenticationResponse;
 import com.sortimo.security.JwtTokenUtil;
@@ -41,12 +45,15 @@ public class IndexController {
     @Autowired
     private UserDetailsService userDetailsService;
 	
+	@Autowired
+	private UserRepository userRepo;
+    
 	
     @RequestMapping(value = "auth", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
 
         // Perform the security
-        final Authentication authentication = authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getUsername(),
                         authenticationRequest.getPassword()
@@ -55,8 +62,13 @@ public class IndexController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Reload password post-security so we can generate token
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        
+        User user = userRepo.findByUsername(authenticationRequest.getUsername());
+        
+        UserDto userDto = new UserConverter().getUserDto(user);
+        
+        String token = jwtTokenUtil.generateToken(userDetails, userDto);
 
         // Return the token
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));

@@ -30,11 +30,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Value("Authorization")
     private String tokenHeader;
 
+    /**
+     * Filter einstiegspunkt
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+    	
         String authToken = request.getHeader(this.tokenHeader);
-        
-        System.out.println(authToken);
         
         // authToken.startsWith("Bearer ")
         // String authToken = header.substring(7);
@@ -47,7 +49,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             // It is not compelling necessary to load the use details from the database. You could also store the information
             // in the token and read it from it. It's up to you ;)
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+//    		UserDetails userDetails = new User(username, "", true, true, true, true, jwtTokenUtil.);
+            
 
+            System.out.println("GetUserFromToken Response: " + jwtTokenUtil.getUserFromToken(authToken));
+            
             // For simple validation it is completely sufficient to just check the token integrity. You don't have to call
             // the database compellingly. Again it's up to you ;)
             if (jwtTokenUtil.validateToken(authToken, userDetails)) {
