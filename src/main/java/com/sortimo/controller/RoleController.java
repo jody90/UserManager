@@ -21,7 +21,6 @@ import com.sortimo.model.Right;
 import com.sortimo.model.Role;
 import com.sortimo.repositories.RightRepository;
 import com.sortimo.repositories.RoleRepository;
-import com.sortimo.services.RestErrorMessage;
 import com.sortimo.services.RestMessage;
 
 @RestController
@@ -62,8 +61,8 @@ public class RoleController {
 
 		// pruefen ob Rolle bereits vorhanden ist
 		if (roleRepo.findByName(role.getName()) != null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + role.getName() + "] already defined");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.CONFLICT);
+			RestMessage error = new RestMessage(404, "Role [" + role.getName() + "] already defined");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.CONFLICT);
 		}
 
 		// Benutzer speichern
@@ -94,8 +93,8 @@ public class RoleController {
 
 		// pruefen ob benutzer vorhanden ist
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] not found");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// response zurueck geben
@@ -115,8 +114,8 @@ public class RoleController {
 
 		// pruefen ob Rolle vorhanden ist
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not found! Cannot delete");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] not found! Cannot delete");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		roleRepo.delete(role);
@@ -143,8 +142,8 @@ public class RoleController {
 		
 		// pruefen ob Rolle bereits vorhanden ist
 		if (storedRole == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		role.setId(storedRole.getId());
@@ -182,14 +181,14 @@ public class RoleController {
 		
 		// pruefen ob Recht vorhanden
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not exists.");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not exists.");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// pruefen ob Rolle vorhanden ist
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		role.getRights().add(right);
@@ -220,20 +219,20 @@ public class RoleController {
 		
 		// pruefen ob Rolle vorhanden ist
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + role + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + role + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// pruefen ob recht vorhanden
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not exists.");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not exists.");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// prufen ob Rolle das Recht beinhaltet
 		if (!role.getRights().contains(right)) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] does not contain the right [" + rightId + "]. Could not be deleted!");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] does not contain the right [" + rightId + "]. Could not be deleted!");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// recht von rolle entfernen

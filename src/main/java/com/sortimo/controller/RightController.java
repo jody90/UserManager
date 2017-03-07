@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sortimo.model.Right;
 import com.sortimo.repositories.RightRepository;
-import com.sortimo.services.RestErrorMessage;
 import com.sortimo.services.RestMessage;
 
 @RestController
@@ -43,8 +42,8 @@ public class RightController {
 
 		// pruefen ob benutzer vorhanden ist
 		if (rightsCollection == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "No Rights found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "No Rights found");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// response zurueck geben
@@ -65,8 +64,8 @@ public class RightController {
 
 		// pruefen ob Rolle bereits vorhanden ist
 		if (rightRepo.findByName(right.getName()) != null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + right.getName() + "] already defined");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.CONFLICT);
+			RestMessage error = new RestMessage(404, "Right [" + right.getName() + "] already defined");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.CONFLICT);
 		}	
 		
 		// Benutzer speichern
@@ -97,8 +96,8 @@ public class RightController {
 
 		// pruefen ob benutzer vorhanden ist
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not found");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// response zurueck geben
@@ -118,8 +117,8 @@ public class RightController {
 
 		// pruefen ob Rolle vorhanden ist
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not found! Cannot delete");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not found! Cannot delete");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		rightRepo.delete(right);
@@ -146,8 +145,8 @@ public class RightController {
 		
 		// pruefen ob Rolle bereits vorhanden ist
 		if (storedRight == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		right.setId(storedRight.getId());

@@ -24,7 +24,6 @@ import com.sortimo.model.User;
 import com.sortimo.repositories.RightRepository;
 import com.sortimo.repositories.RoleRepository;
 import com.sortimo.repositories.UserRepository;
-import com.sortimo.services.RestErrorMessage;
 import com.sortimo.services.RestMessage;
 
 @RestController
@@ -50,12 +49,12 @@ public class UserController {
 	public @ResponseBody ResponseEntity<?> getAllUser() {
 		
 		Iterable<User> usersCollection = userRepo.findAll();
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Set-Cookie","Cookie-Daten=Jody");
+//		
+//		HttpHeaders headers = new HttpHeaders();
+//		headers.add("Set-Cookie","Cookie-Daten=Jody");
 				
 		// response zurueck geben
-		return new ResponseEntity<Iterable<User>>(usersCollection, headers, HttpStatus.OK);
+		return new ResponseEntity<Iterable<User>>(usersCollection, HttpStatus.OK);
 		
 	}
 	
@@ -73,8 +72,8 @@ public class UserController {
 		
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not found");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not found");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// response zurueck geben
@@ -94,8 +93,8 @@ public class UserController {
 
 		// pruefen ob benutzer bereits vorhanden ist
 		if (userRepo.findByUsername(user.getUsername()) != null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + user.getUsername() + "] already defined");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.CONFLICT);
+			RestMessage error = new RestMessage(404, "User [" + user.getUsername() + "] already defined");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.CONFLICT);
 		}
 		
 		// Benutzer speichern
@@ -126,8 +125,8 @@ public class UserController {
 
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not found! Cannot delete");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not found! Cannot delete");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		userRepo.delete(user);
@@ -154,8 +153,8 @@ public class UserController {
 		
 		// pruefen ob benutzer vorhanden ist
 		if (existingUser == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		user.setUsername(username);
@@ -191,14 +190,14 @@ public class UserController {
 		
 		// pruefen ob recht vorhanden
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not exists.");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not exists.");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		user.getRights().add(right);
@@ -229,20 +228,20 @@ public class UserController {
 		
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// pruefen ob recht vorhanden
 		if (right == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Right [" + rightId + "] not exists.");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not exists.");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// prufen ob user das recht besitzt
 		if (!user.getRights().contains(right)) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] does not have the right [" + rightId + "]. Could not be deleted!");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] does not have the right [" + rightId + "]. Could not be deleted!");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// recht von benutzer entfernen
@@ -276,14 +275,14 @@ public class UserController {
 		
 		// pruefen ob rolle vorhanden
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not exists.");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] not exists.");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		user.getRoles().add(role);
@@ -317,20 +316,20 @@ public class UserController {
 		
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] not exists. Create it first");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// pruefen ob rolle vorhanden
 		if (role == null) {
-			RestErrorMessage error = new RestErrorMessage(404, "Role [" + roleId + "] not exists.");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "Role [" + roleId + "] not exists.");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// prufen ob user die Rolle besitzt
 		if (!user.getRoles().contains(role)) {
-			RestErrorMessage error = new RestErrorMessage(404, "User [" + username + "] does not have the role [" + roleId + "]. Could not be deleted!");
-			return new ResponseEntity<RestErrorMessage>(error, HttpStatus.NOT_FOUND);
+			RestMessage error = new RestMessage(404, "User [" + username + "] does not have the role [" + roleId + "]. Could not be deleted!");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
 		// recht von benutzer entfernen
