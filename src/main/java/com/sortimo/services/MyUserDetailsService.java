@@ -15,9 +15,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sortimo.converter.JwtUserConverter;
 import com.sortimo.model.Right;
 import com.sortimo.model.Role;
 import com.sortimo.repositories.UserRepository;
+import com.sortimo.security.JwtUser;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
@@ -27,24 +29,35 @@ public class MyUserDetailsService implements UserDetailsService {
 	
 	@Transactional(readOnly = true)
 	@Override
-	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		com.sortimo.model.User user = userRepo.findByUsername(username);
+		com.sortimo.model.User userOrginal = userRepo.findByUsername(username);
 		
+		JwtUser user = new JwtUserConverter().getJwtUser(userOrginal);
+
 		Collection<GrantedAuthority> authorities = buildUserAuthority(user);
 
 		return buildUserForAuthentication(user, authorities);
 	}
 
-	private User buildUserForAuthentication(com.sortimo.model.User user, Collection<GrantedAuthority> authorities) {
+	public UserDetails buildUserFromToken(JwtUser user) throws UsernameNotFoundException {
+		
+		System.out.println("buildUserFromToken: " + user);
+		
+		Collection<GrantedAuthority> authorities = buildUserAuthority(user);
 
-//		return new JwtUser(user.getUsername(), user.getPassword(), authorities, true, user);
+		return buildUserForAuthentication(user, authorities);
+	}
+	
+	private User buildUserForAuthentication(JwtUser user, Collection<GrantedAuthority> authorities) {
+		
+		System.out.println("buildUserForAuthentication: " + user);
 		
 		return new User(user.getUsername(), user.getPassword(), true, true, true, true, authorities);
 
 	}
 
-	private Collection<GrantedAuthority> buildUserAuthority(com.sortimo.model.User user) {
+	private Collection<GrantedAuthority> buildUserAuthority(JwtUser user) {
 		
 		Collection<GrantedAuthority> setAuths = new HashSet<GrantedAuthority>();
 		

@@ -1,6 +1,7 @@
 package com.sortimo.security;
 
 import java.io.IOException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -13,16 +14,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.sortimo.services.MyUserDetailsService;
 
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final Log logger = LogFactory.getLog(this.getClass());
-
-    @Autowired
-    private UserDetailsService userDetailsService;
+    
+	@Autowired
+	MyUserDetailsService myUserDetailsService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -38,28 +40,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     	
         String authToken = request.getHeader(this.tokenHeader);
         
-        // authToken.startsWith("Bearer ")
-        // String authToken = header.substring(7);
-        String username = jwtTokenUtil.getUsernameFromToken(authToken);
+        JwtUser user = jwtTokenUtil.getUserFromToken(authToken);
 
-        logger.info("checking authentication für user " + username);
+//        logger.info("checking authentication für user " + user.getUsername());
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // It is not compelling necessary to load the use details from the database. You could also store the information
-            // in the token and read it from it. It's up to you ;)
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-//    		UserDetails userDetails = new User(username, "", true, true, true, true, jwtTokenUtil.);
+            UserDetails userDetails = myUserDetailsService.buildUserFromToken(user);
             
-
-            System.out.println("GetUserFromToken Response: " + jwtTokenUtil.getUserFromToken(authToken));
-            
-            // For simple validation it is completely sufficient to just check the token integrity. You don't have to call
-            // the database compellingly. Again it's up to you ;)
             if (jwtTokenUtil.validateToken(authToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                logger.info("authenticated user " + username + ", setting security context");
+                logger.info("authenticated user " + user.getUsername() + ", setting security context");
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

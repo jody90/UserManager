@@ -16,19 +16,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.sortimo.converter.UserConverter;
-import com.sortimo.dto.UserDto;
+import com.sortimo.converter.JwtUserConverter;
 import com.sortimo.model.User;
 import com.sortimo.repositories.UserRepository;
 import com.sortimo.security.JwtAuthenticationRequest;
 import com.sortimo.security.JwtAuthenticationResponse;
 import com.sortimo.security.JwtTokenUtil;
+import com.sortimo.security.JwtUser;
+import com.sortimo.services.MyUserDetailsService;
 
 @Controller
 public class IndexController {
@@ -43,7 +43,7 @@ public class IndexController {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private MyUserDetailsService myUserDetailsService;
 	
 	@Autowired
 	private UserRepository userRepo;
@@ -62,13 +62,13 @@ public class IndexController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Reload password post-security so we can generate token
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
         User user = userRepo.findByUsername(authenticationRequest.getUsername());
         
-        UserDto userDto = new UserConverter().getUserDto(user);
+        JwtUser jwtUser = new JwtUserConverter().getJwtUser(user);
         
-        String token = jwtTokenUtil.generateToken(userDetails, userDto);
+        String token = jwtTokenUtil.generateToken(userDetails, jwtUser);
 
         // Return the token
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
