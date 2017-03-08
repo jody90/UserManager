@@ -81,7 +81,7 @@ public class IndexController {
 	 * @param response
 	 * @param request
 	 */
-	@RequestMapping("/")
+	@RequestMapping(value={"/", "/api"})
 	public void method(HttpServletResponse response, HttpServletRequest request) {
 		
 		// Http Header fuer response vorbereiten

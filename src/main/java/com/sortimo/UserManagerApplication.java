@@ -8,6 +8,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sortimo.dto.UserPostDto;
+
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
@@ -46,5 +51,15 @@ public class UserManagerApplication {
 				.version("2.0")
 				.build();
 	}
+	
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(Include.NON_NULL);
+        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+        objectMapper.registerSubtypes(UserPostDto.class);
+        return objectMapper;
+    }
+
 		
 }

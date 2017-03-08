@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sortimo.dto.UserPostDto;
 import com.sortimo.model.Right;
 import com.sortimo.model.Role;
 import com.sortimo.model.User;
@@ -25,6 +26,7 @@ import com.sortimo.repositories.RightRepository;
 import com.sortimo.repositories.RoleRepository;
 import com.sortimo.repositories.UserRepository;
 import com.sortimo.services.RestMessage;
+import com.sortimo.services.database.UserService;
 
 @RestController
 @RequestMapping(value="/api/user")
@@ -38,6 +40,9 @@ public class UserController {
 	
 	@Autowired
 	private RoleRepository roleRepo;
+	
+	@Autowired
+	private UserService userService;
 	
 	/**
 	 * Liest alle Benutzer aus der Datenbank aus
@@ -89,16 +94,16 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
-	public @ResponseBody ResponseEntity<?> register(@RequestBody User user, HttpServletRequest request) throws MalformedURLException {
-
+	public @ResponseBody ResponseEntity<?> register(@RequestBody UserPostDto user, HttpServletRequest request) throws MalformedURLException {
+		
 		// pruefen ob benutzer bereits vorhanden ist
-		if (userRepo.findByUsername(user.getUsername()) != null) {
+		if (userService.userExists(user)) {
 			RestMessage error = new RestMessage(404, "User [" + user.getUsername() + "] already defined");
 			return new ResponseEntity<RestMessage>(error, HttpStatus.CONFLICT);
 		}
 		
 		// Benutzer speichern
-		userRepo.save(user);
+		UserPostDto savedUser = userService.create(user);
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
@@ -108,7 +113,7 @@ public class UserController {
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben
-	    return new ResponseEntity<User>(user, headers, HttpStatus.CREATED);
+	    return new ResponseEntity<UserPostDto>(savedUser, headers, HttpStatus.CREATED);
 
 	}
 	
