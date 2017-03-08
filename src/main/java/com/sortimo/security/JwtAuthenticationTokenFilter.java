@@ -17,8 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.sortimo.services.MyUserDetailsService;
-
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     private final Log logger = LogFactory.getLog(this.getClass());

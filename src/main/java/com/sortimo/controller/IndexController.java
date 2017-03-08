@@ -28,7 +28,7 @@ import com.sortimo.security.JwtAuthenticationRequest;
 import com.sortimo.security.JwtAuthenticationResponse;
 import com.sortimo.security.JwtTokenUtil;
 import com.sortimo.security.JwtUser;
-import com.sortimo.services.MyUserDetailsService;
+import com.sortimo.security.MyUserDetailsService;
 
 @Controller
 public class IndexController {
@@ -49,7 +49,7 @@ public class IndexController {
 	private UserRepository userRepo;
     
 	
-    @RequestMapping(value = "auth", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/auth", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
 
         // Perform the security

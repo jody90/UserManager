@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.sortimo.security.JwtAuthenticationEntryPoint;
 import com.sortimo.security.JwtAuthenticationTokenFilter;
-import com.sortimo.services.MyUserDetailsService;
+import com.sortimo.security.MyUserDetailsService;
 
 @Profile("!dev")
 @Configuration
@@ -66,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/**/*.css",
                 "/**/*.js"
         ).permitAll()
-        .antMatchers("/auth/**").permitAll()
+        .antMatchers("/api/auth/**").permitAll()
         .anyRequest().authenticated();
 
 		// Custom JWT based security filter

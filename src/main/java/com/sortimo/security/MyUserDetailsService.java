@@ -1,4 +1,4 @@
-package com.sortimo.services;
+package com.sortimo.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +19,6 @@ import com.sortimo.converter.JwtUserConverter;
 import com.sortimo.model.Right;
 import com.sortimo.model.Role;
 import com.sortimo.repositories.UserRepository;
-import com.sortimo.security.JwtUser;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
@@ -42,16 +41,12 @@ public class MyUserDetailsService implements UserDetailsService {
 
 	public UserDetails buildUserFromToken(JwtUser user) throws UsernameNotFoundException {
 		
-		System.out.println("buildUserFromToken: " + user);
-		
 		Collection<GrantedAuthority> authorities = buildUserAuthority(user);
 
 		return buildUserForAuthentication(user, authorities);
 	}
 	
 	private User buildUserForAuthentication(JwtUser user, Collection<GrantedAuthority> authorities) {
-		
-		System.out.println("buildUserForAuthentication: " + user);
 		
 		return new User(user.getUsername(), user.getPassword(), true, true, true, true, authorities);
 
