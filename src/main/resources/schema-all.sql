@@ -37,4 +37,8 @@ CREATE TABLE IF NOT EXISTS roles_rights (
   PRIMARY KEY (role_id, right_id)
 );
 
-
+INSERT INTO rights (id, name, description) VALUES(1, "superRight", "Wer dieses Recht hat, ist der König der Welt.") ON DUPLICATE KEY UPDATE id=1, name="superRight", description="Wer dieses Recht hat, ist der König der Welt.";
+INSERT INTO roles (id, name, description) VALUES(1, "superAdmin", "Gottgleiches Wesen") ON DUPLICATE KEY UPDATE id=1, name="superAdmin", description="Gottgleiches Wesen";
+INSERT INTO roles_rights (role_id, right_id) VALUES(1, 1) ON DUPLICATE KEY UPDATE role_id=1, right_id=1;
+INSERT INTO users (id, username, password, lastname, firstname, email) VALUES(1, "superadmin", "geheim", "admin", "super", "super@admin.com") ON DUPLICATE KEY UPDATE id=1, username="superadmin", password="geheim", lastname="admin", firstname="super", email="super@admin.com";
+INSERT INTO users_roles(username, role_id) VALUES("superadmin", 1) ON DUPLICATE KEY UPDATE username="superadmin", role_id=1;
