@@ -12,11 +12,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.sortimo.security.JwtAuthenticationEntryPoint;
 import com.sortimo.security.JwtAuthenticationTokenFilter;
 import com.sortimo.security.MyUserDetailsService;
+import com.sortimo.services.HelperFunctions;
 
 @Profile("!dev")
 @Configuration
@@ -26,10 +29,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	MyUserDetailsService myUserDetailsService;
+	
+	@Autowired
+	HelperFunctions helper;
+	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+	    return new BCryptPasswordEncoder();
+	}
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(myUserDetailsService);
+		auth.userDetailsService(myUserDetailsService).passwordEncoder(passwordEncoder());
 	}
 	
     @Autowired
@@ -42,7 +53,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(HttpSecurity httpSecurity) throws Exception {
-		
 		
         httpSecurity
         // we don't need CSRF because our token is invulnerable
@@ -66,7 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/**/*.css",
                 "/**/*.js"
         ).permitAll()
-        .antMatchers("/api/auth/**").permitAll()
+        .antMatchers("/api/auth").permitAll()
         .anyRequest().authenticated();
 
 		// Custom JWT based security filter
@@ -74,48 +84,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		// disable page caching
 		httpSecurity.headers().cacheControl();
-		
-		
-		
-		
-		
-//		http.addFilterBefore(new CustomLoginFilter(), UsernamePasswordAuthenticationFilter.class)
-//		.authorizeRequests()
-//		.and()
-//		.formLogin();
-		
-//        http
-//        .authorizeRequests()
-//        .antMatchers("/api/**").authenticated()
-//
-//        // Allow anonymous resource requests
-//        .antMatchers("/").permitAll()
-//        .antMatchers("/favicon.ico").permitAll()
-//        .antMatchers("**/*.html").permitAll()
-//        .antMatchers("**/*.css").permitAll()
-//        .antMatchers("**/*.js").permitAll()
-//
-//        // Allow anonymous logins
-//        .antMatchers("/login/**").permitAll()
-//
-//        // All other request need to be authenticated
-//        .anyRequest().authenticated().and()
-//
-//        // Custom Token based authentication based on the header previously given to the client
-//        .addFilterBefore(new StatelessAuthenticationFilter(tokenAuthenticationService),
-//                UsernamePasswordAuthenticationFilter.class);
-		
-		
-//        http.csrf().disable() // disable csrf for our requests.
-//        .authorizeRequests()
-//        .antMatchers("/api/**").authenticated()
-//        .antMatchers(HttpMethod.GET, "/login").permitAll()
-////        .anyRequest().authenticated()
-//        .and()
-//        // We filter the api/login requests
-//        .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
-//        // And filter other requests to check the presence of JWT in header
-//        .addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);		
-////		
+	
 	}
 }

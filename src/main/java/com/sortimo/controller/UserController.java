@@ -50,7 +50,8 @@ public class UserController {
 	 * @return Collection von User Objekten
 	 */
 	@RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAuthority('demoRight')")
+//	@PreAuthorize("hasAuthority('demoRight')")
+	@PreAuthorize("hasAnyAuthority('superRight', 'demoRight')")
 	public @ResponseBody ResponseEntity<?> getAllUser() {
 		
 		Iterable<User> usersCollection = userRepo.findAll();
