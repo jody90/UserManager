@@ -3,6 +3,7 @@ package com.sortimo.controller;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sortimo.dto.UserGetDto;
 import com.sortimo.dto.UserPostDto;
 import com.sortimo.model.Right;
 import com.sortimo.model.Role;
@@ -50,17 +52,13 @@ public class UserController {
 	 * @return Collection von User Objekten
 	 */
 	@RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
-//	@PreAuthorize("hasAuthority('demoRight')")
-	@PreAuthorize("hasAnyAuthority('superRight', 'demoRight')")
+	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showAllUsers')")
 	public @ResponseBody ResponseEntity<?> getAllUser() {
 		
-		Iterable<User> usersCollection = userRepo.findAll();
-//		
-//		HttpHeaders headers = new HttpHeaders();
-//		headers.add("Set-Cookie","Cookie-Daten=Jody");
+		List<UserGetDto> usersCollection = userService.findAll();
 				
 		// response zurueck geben
-		return new ResponseEntity<Iterable<User>>(usersCollection, HttpStatus.OK);
+		return new ResponseEntity<List<UserGetDto>>(usersCollection, HttpStatus.OK);
 		
 	}
 	
@@ -71,19 +69,21 @@ public class UserController {
 	 * @return User Object
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAuthority('Testrecht1')")
+	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showUser')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
-		User user = userRepo.findByUsername(username);
+		UserGetDto user;
 		
-		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
+		try {			
+			user = userService.findByUsername(username);
+		}
+		catch (NullPointerException e) {
 			RestMessage error = new RestMessage(404, "User [" + username + "] not found");
 			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 		
 		// response zurueck geben
-		return new ResponseEntity<User>(user, HttpStatus.OK);
+		return new ResponseEntity<UserGetDto>(user, HttpStatus.OK);
 	}
 
 	/**
