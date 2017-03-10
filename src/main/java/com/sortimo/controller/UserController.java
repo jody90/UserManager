@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sortimo.converter.UserGetConverter;
+import com.sortimo.converter.UserPostConverter;
 import com.sortimo.dto.UserGetDto;
 import com.sortimo.dto.UserPostDto;
 import com.sortimo.model.Right;
@@ -105,7 +107,7 @@ public class UserController {
 		}
 		
 		// Benutzer speichern
-		UserPostDto savedUser = userService.create(user);
+		UserPostDto savedUser = userService.save(user);
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
@@ -129,20 +131,21 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_deleteUser')")
 	public @ResponseBody ResponseEntity<?> deleteUser(@PathVariable String username) {
 
-		User user = userRepo.findByUsername(username);
+		try {
+			UserGetDto user = userService.findByUsername(username);
+			
+			userService.delete(user);
+			
+			RestMessage message = new RestMessage(200, "User [" + username + "] successfully deleted");
 
-		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
+			// response zurueck geben
+			return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
+		}
+		catch (NullPointerException e) {
 			RestMessage error = new RestMessage(404, "User [" + username + "] not found! Cannot delete");
 			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
 
-		userRepo.delete(user);
-
-		RestMessage message = new RestMessage(200, "User [" + username + "] successfully deleted");
-
-		// response zurueck geben
-		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
 	}
 
 	/**
@@ -158,26 +161,23 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_updateUser')")
 	public @ResponseBody ResponseEntity<?> update(@RequestBody User user, @PathVariable String username,  HttpServletRequest request) throws MalformedURLException {
 
-		User existingUser = userRepo.findByUsername(username);
-		
-		// pruefen ob benutzer vorhanden ist
-		if (existingUser == null) {
+		try {
+			userService.findByUsername(username);
+			
+			user.setUsername(username);
+			
+			// Benutzer speichern
+			userRepo.save(user);
+			
+			// response zurueck geben
+			return new ResponseEntity<User>(user, HttpStatus.OK);
+		}
+		catch (NullPointerException e) {
+			
 			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
-		}
-
-		user.setUsername(username);
 		
-		if (existingUser.getRights().contains(rightRepo.findByName("Testrecht1"))) {
-			System.out.println("User hat das Recht");
-			existingUser.getRights().remove(rightRepo.findByName("Testrecht1"));
 		}
-
-		// Benutzer speichern
-		userRepo.save(user);
-
-	    // response zurueck geben
-	    return new ResponseEntity<User>(user, HttpStatus.OK);
 
 	}
 	
@@ -195,28 +195,30 @@ public class UserController {
 	public @ResponseBody ResponseEntity<?> userAddRight(@PathVariable String username, @PathVariable Long rightId,  HttpServletRequest request) throws MalformedURLException {
 
 		User user = userRepo.findByUsername(username);
-		
+
 		Right right = rightRepo.findOne(rightId);
+		
+		// pruefen ob recht vorhanden
+		if (user == null) {
+			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
+		}
 		
 		// pruefen ob recht vorhanden
 		if (right == null) {
 			RestMessage error = new RestMessage(404, "Right [" + rightId + "] not exists.");
 			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
-		
-		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
-			RestMessage error = new RestMessage(404, "User [" + username + "] not exists. Create it first");
-			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
-		}
-
+			
 		user.getRights().add(right);
+			
+		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
 		
 		// Benutzer speichern
-		userRepo.save(user);
-
-	    // response zurueck geben
-	    return new ResponseEntity<User>(user, HttpStatus.OK);
+		userService.save(new UserPostConverter().getUserPostDto(user));
+			
+		// response zurueck geben
+		return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
 
 	}
 	
@@ -258,11 +260,13 @@ public class UserController {
 		// recht von benutzer entfernen
 		user.getRights().remove(right);
 		
+		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
+		
 		// benutzer speichern
-		userRepo.save(user);
+		userService.save(new UserPostConverter().getUserPostDto(user));
 
 	    // response zurueck geben
-	    return new ResponseEntity<User>(user, HttpStatus.OK);
+	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
 
 	}
 	
@@ -279,8 +283,6 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userAddRole')")
 	public @ResponseBody ResponseEntity<?> userAddRole(@PathVariable String username, @PathVariable Long roleId,  HttpServletRequest request) throws MalformedURLException {
 
-		System.out.println("roleId: "+roleId);
-		
 		User user = userRepo.findByUsername(username);
 		
 		Role role = roleRepo.findOne(roleId);
@@ -299,14 +301,13 @@ public class UserController {
 
 		user.getRoles().add(role);
 		
-		System.out.println("Role: "+role);
-		System.out.println("User: "+user);
+		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
 		
-		// Benutzer speichern
-		userRepo.save(user);
+		// benutzer speichern
+		userService.save(new UserPostConverter().getUserPostDto(user));
 
 	    // response zurueck geben
-	    return new ResponseEntity<User>(user, HttpStatus.OK);
+	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
 
 	}
 	
@@ -348,11 +349,13 @@ public class UserController {
 		// recht von benutzer entfernen
 		user.getRoles().remove(role);
 		
+		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
+		
 		// benutzer speichern
-		userRepo.save(user);
+		userService.save(new UserPostConverter().getUserPostDto(user));
 
 	    // response zurueck geben
-	    return new ResponseEntity<User>(user, HttpStatus.OK);
+	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
 
 	}
 	

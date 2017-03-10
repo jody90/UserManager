@@ -25,7 +25,7 @@ public class UserService {
 	private UserRepository userRepo;
 	
 	@Transactional(propagation = Propagation.REQUIRED)
-	public UserPostDto create(UserPostDto user) {
+	public UserPostDto save(UserPostDto user) {
 		
 		user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
 		
@@ -66,6 +66,11 @@ public class UserService {
 		}
 		
 		return new UserGetDto(dbUser);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void delete(UserGetDto user) {
+		userRepo.delete(userRepo.findByUsername(user.getUsername()));
 	}
 
 }

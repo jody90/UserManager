@@ -12,7 +12,7 @@ public class UserPostDto extends SimpleUserDto {
 		super(username, firstname, lastname, email);
 		this.setPassword(password);
 	}
-
+	
 	public String getPassword() {
 		return password;
 	}
