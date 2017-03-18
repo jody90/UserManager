@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 public class TimeLoggingAspect {
 
-	private static final Logger LOG = LoggerFactory.getLogger( TimeLoggingAspect.class );
+	private static final Logger LOG = LoggerFactory.getLogger("\033[33mTimeLoggingAspect\033[39m");
 	
 	@Pointcut("@annotation(Timelog)")
 	public void timelogPointcut() {}
@@ -32,11 +32,29 @@ public class TimeLoggingAspect {
 		}
 		
 		LOG.info(
-			"Methode: {}; Funktion: {}; Dauer: {} ms",
+			"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
 			point.getSignature().getDeclaringType().getName(),
 			MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
 			System.currentTimeMillis() - start
 		);	
+		LOG.debug(
+				"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
+				point.getSignature().getDeclaringType().getName(),
+				MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
+				System.currentTimeMillis() - start
+			);	
+		LOG.warn(
+				"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
+				point.getSignature().getDeclaringType().getName(),
+				MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
+				System.currentTimeMillis() - start
+			);	
+		LOG.error(
+				"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
+				point.getSignature().getDeclaringType().getName(),
+				MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
+				System.currentTimeMillis() - start
+			);	
 		
 		return result;
 	}
