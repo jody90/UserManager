@@ -33,7 +33,7 @@ import com.sortimo.security.MyUserDetailsService;
 @Controller
 public class IndexController {
 	
-    @Value("Authorization")
+	@Value("${jwt.header}")
     private String tokenHeader;
 
     @Autowired
@@ -51,6 +51,25 @@ public class IndexController {
 	@Autowired
 	private UserConverter userConverter;
     
+//  @RequestMapping(value = "${jwt.route.authentication.path}", method = RequestMethod.POST)
+//  public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
+//
+//      // Perform the security
+//      final Authentication authentication = authenticationManager.authenticate(
+//              new UsernamePasswordAuthenticationToken(
+//                      authenticationRequest.getUsername(),
+//                      authenticationRequest.getPassword()
+//              )
+//      );
+//      SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//      // Reload password post-security so we can generate token
+//      final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+//      final String token = jwtTokenUtil.generateToken(userDetails, device);
+//
+//      // Return the token
+//      return ResponseEntity.ok(new JwtAuthenticationResponse(token));
+//  }
 	
     @RequestMapping(value = "/api/auth", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
@@ -77,7 +96,6 @@ public class IndexController {
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 	
-
 	/**
 	 * Leitet einen Request von Application Root auf Swagger-UI um
 	 * 
@@ -99,6 +117,6 @@ public class IndexController {
 		catch (IOException e) {
 			System.err.println("Beim Redirect lief etwas schief!");
 		}
-    }
+    }	
 	
 }

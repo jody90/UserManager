@@ -1,6 +1,5 @@
 package com.sortimo.configs;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.sortimo.security.JwtAuthenticationEntryPoint;
 import com.sortimo.security.JwtAuthenticationTokenFilter;
 import com.sortimo.security.MyUserDetailsService;
-import com.sortimo.services.HelperFunctions;
 
 @Profile("!dev")
 @Configuration
@@ -28,10 +26,7 @@ import com.sortimo.services.HelperFunctions;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
-	MyUserDetailsService myUserDetailsService;
-	
-	@Autowired
-	HelperFunctions helper;
+	private MyUserDetailsService myUserDetailsService;
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {

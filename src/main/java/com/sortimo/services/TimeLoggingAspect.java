@@ -37,25 +37,7 @@ public class TimeLoggingAspect {
 			MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
 			System.currentTimeMillis() - start
 		);	
-		LOG.debug(
-				"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
-				point.getSignature().getDeclaringType().getName(),
-				MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
-				System.currentTimeMillis() - start
-			);	
-		LOG.warn(
-				"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
-				point.getSignature().getDeclaringType().getName(),
-				MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
-				System.currentTimeMillis() - start
-			);	
-		LOG.error(
-				"Klasse: \33[96m{}\033[39m; Methode: \33[96m{}\033[39m; Dauer: \033[96m{} ms\033[39m",
-				point.getSignature().getDeclaringType().getName(),
-				MethodSignature.class.cast(point.getSignature()).getMethod().getName(),
-				System.currentTimeMillis() - start
-			);	
-		
+
 		return result;
 	}
 	

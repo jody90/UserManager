@@ -76,18 +76,19 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showUser')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
-		UserGetDto user;
+		UserGetDto user = null;
 		
-		try {			
+		try {		
 			user = userService.findByUsername(username);
 		}
 		catch (NullPointerException e) {
 			RestMessage error = new RestMessage(404, "User [" + username + "] not found");
 			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
 		}
-		
+
 		// response zurueck geben
 		return new ResponseEntity<UserGetDto>(user, HttpStatus.OK);
+		
 	}
 
 	/**

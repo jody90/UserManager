@@ -7,8 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationTokenFilter.class);
     
 	@Autowired
 	MyUserDetailsService myUserDetailsService;
@@ -27,7 +27,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    @Value("Authorization")
+    @Value("${jwt.header}")
     private String tokenHeader;
 
     /**
@@ -36,12 +36,15 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
     	
-        String authToken = request.getHeader(this.tokenHeader);
+    	String authToken = request.getHeader(this.tokenHeader);
+    	JwtUser user = null;
+    	
+    	LOG.info("authToken: {}", authToken);
+    	
+    	if (authToken != null) {
+    		user = jwtTokenUtil.getUserFromToken(authToken);
+    	}
         
-        JwtUser user = jwtTokenUtil.getUserFromToken(authToken);
-
-//        logger.info("checking authentication für user " + user.getUsername());
-
         if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = myUserDetailsService.buildUserFromToken(user);

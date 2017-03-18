@@ -25,10 +25,10 @@ public class JwtTokenUtil implements Serializable {
     static String CLAIM_KEY_AUDIENCE = "audience";
     static String CLAIM_KEY_CREATED = "created";
 
-    @Value("server")
+    @Value("${jwt.secret}")
     private String secret;
 
-    @Value("3600")
+    @Value("${jwt.expiration}")
     private Long expiration;
 
     public String getUsernameFromToken(String token) {

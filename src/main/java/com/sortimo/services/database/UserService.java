@@ -60,7 +60,6 @@ public class UserService {
 		return userGetCollection;
 	}
 
-	@Timelog
 	public UserGetDto findByUsername(String username) throws NullPointerException {
 		
 		User dbUser = userRepo.findByUsername(username);
