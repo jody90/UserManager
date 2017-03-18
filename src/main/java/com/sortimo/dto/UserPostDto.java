@@ -23,7 +23,7 @@ public class UserPostDto extends SimpleUserDto {
 
 	@Override
 	public String toString() {
-		return "UserPostDto [password=" + password + ", " + super.toString() + "]";
+		return "UserPostDto [password=" + password + ", toString()=" + super.toString() + "]";
 	}
 
 }

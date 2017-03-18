@@ -43,7 +43,7 @@ public class UserGetDto extends SimpleUserDto {
 
 	@Override
 	public String toString() {
-		return "UserDto [rights=" + rights + ", roles=" + roles + "]";
+		return "UserGetDto [rights=" + rights + ", roles=" + roles + ", toString()=" + super.toString() + "]";
 	}
 	
 }

@@ -15,6 +15,7 @@ import com.sortimo.dto.UserGetDto;
 import com.sortimo.dto.UserPostDto;
 import com.sortimo.model.User;
 import com.sortimo.repositories.UserRepository;
+import com.sortimo.services.Timelog;
 
 @Service
 public class UserService {
@@ -25,6 +26,7 @@ public class UserService {
 	private UserRepository userRepo;
 	
 	@Transactional(propagation = Propagation.REQUIRED)
+	@Timelog
 	public UserPostDto save(UserPostDto user) {
 		
 		user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
@@ -37,6 +39,7 @@ public class UserService {
 
 	}
 	
+	@Timelog
 	public boolean userExists(UserPostDto user) {
 		
 		User existingUser = userRepo.findByUsername(user.getUsername());
@@ -45,6 +48,7 @@ public class UserService {
 		
 	}
 
+	@Timelog
 	public List<UserGetDto> findAll() {
 		Iterable<User> usersCollection = userRepo.findAll();
 		List<UserGetDto> userGetCollection = new ArrayList<>();
@@ -56,6 +60,7 @@ public class UserService {
 		return userGetCollection;
 	}
 
+	@Timelog
 	public UserGetDto findByUsername(String username) throws NullPointerException {
 		
 		User dbUser = userRepo.findByUsername(username);

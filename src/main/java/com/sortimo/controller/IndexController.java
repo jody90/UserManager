@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.sortimo.converter.JwtUserConverter;
+import com.sortimo.converter.UserConverter;
 import com.sortimo.model.User;
 import com.sortimo.repositories.UserRepository;
 import com.sortimo.security.JwtAuthenticationRequest;
@@ -47,6 +47,9 @@ public class IndexController {
 	
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private UserConverter userConverter;
     
 	
     @RequestMapping(value = "/api/auth", method = RequestMethod.POST)
@@ -66,7 +69,7 @@ public class IndexController {
         
         User user = userRepo.findByUsername(authenticationRequest.getUsername());
         
-        JwtUser jwtUser = new JwtUserConverter().getJwtUser(user);
+        JwtUser jwtUser = userConverter.getJwtUser(user);
         
         String token = jwtTokenUtil.generateToken(userDetails, jwtUser);
 

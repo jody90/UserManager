@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sortimo.converter.JwtUserConverter;
+import com.sortimo.converter.UserConverter;
 import com.sortimo.model.Right;
 import com.sortimo.model.Role;
 import com.sortimo.repositories.UserRepository;
@@ -26,13 +26,16 @@ public class MyUserDetailsService implements UserDetailsService {
 	@Autowired
 	private UserRepository userRepo;
 	
+	@Autowired
+	private UserConverter userConverter;
+	
 	@Transactional(readOnly = true)
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 		com.sortimo.model.User userOrginal = userRepo.findByUsername(username);
 		
-		JwtUser user = new JwtUserConverter().getJwtUser(userOrginal);
+		JwtUser user = userConverter.getJwtUser(userOrginal);
 
 		Collection<GrantedAuthority> authorities = buildUserAuthority(user);
 

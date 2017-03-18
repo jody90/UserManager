@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sortimo.converter.UserGetConverter;
-import com.sortimo.converter.UserPostConverter;
+import com.sortimo.converter.UserConverter;
 import com.sortimo.dto.UserGetDto;
 import com.sortimo.dto.UserPostDto;
 import com.sortimo.model.Right;
@@ -47,6 +46,9 @@ public class UserController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private UserConverter userConverter;
 	
 	/**
 	 * Liest alle Benutzer aus der Datenbank aus
@@ -212,10 +214,10 @@ public class UserController {
 			
 		user.getRights().add(right);
 			
-		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
+		UserGetDto returnUser = userConverter.getUserGetDto(user);
 		
 		// Benutzer speichern
-		userService.save(new UserPostConverter().getUserPostDto(user));
+		userService.save(userConverter.getUserPostDto(user));
 			
 		// response zurueck geben
 		return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
@@ -260,10 +262,10 @@ public class UserController {
 		// recht von benutzer entfernen
 		user.getRights().remove(right);
 		
-		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
+		UserGetDto returnUser = userConverter.getUserGetDto(user);
 		
 		// benutzer speichern
-		userService.save(new UserPostConverter().getUserPostDto(user));
+		userService.save(userConverter.getUserPostDto(user));
 
 	    // response zurueck geben
 	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
@@ -301,10 +303,10 @@ public class UserController {
 
 		user.getRoles().add(role);
 		
-		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
+		UserGetDto returnUser = userConverter.getUserGetDto(user);
 		
 		// benutzer speichern
-		userService.save(new UserPostConverter().getUserPostDto(user));
+		userService.save(userConverter.getUserPostDto(user));
 
 	    // response zurueck geben
 	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
@@ -349,10 +351,10 @@ public class UserController {
 		// recht von benutzer entfernen
 		user.getRoles().remove(role);
 		
-		UserGetDto returnUser = new UserGetConverter().getUserGetDto(user);
+		UserGetDto returnUser = userConverter.getUserGetDto(user);
 		
 		// benutzer speichern
-		userService.save(new UserPostConverter().getUserPostDto(user));
+		userService.save(userConverter.getUserPostDto(user));
 
 	    // response zurueck geben
 	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
