@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -76,14 +77,21 @@ public class IndexController {
 			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
     	}
     	
-    	Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authenticationRequest.getUsername(),
-                        authenticationRequest.getPassword()
-                )
-        );
+    	Authentication authentication = null;
+    	try {
+	    	authentication = authenticationManager.authenticate(
+	                new UsernamePasswordAuthenticationToken(
+	                        authenticationRequest.getUsername(),
+	                        authenticationRequest.getPassword()
+	                )
+	        );
+    	}
+    	catch (BadCredentialsException e) {
+			RestMessage error = new RestMessage(403, "User [" + authenticationRequest.getUsername() + "] has bad credentials");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.FORBIDDEN);
+    	}
         
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Reload password post-security so we can generate token
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());

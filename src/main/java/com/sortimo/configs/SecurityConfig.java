@@ -53,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // we don't need CSRF because our token is invulnerable
         .csrf().disable()
 
-        .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+//        .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 
         // don't create session
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
