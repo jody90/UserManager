@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ import com.sortimo.security.JwtAuthenticationResponse;
 import com.sortimo.security.JwtTokenUtil;
 import com.sortimo.security.JwtUser;
 import com.sortimo.security.MyUserDetailsService;
+import com.sortimo.services.RestMessage;
 
 @Controller
 public class IndexController {
@@ -51,42 +53,40 @@ public class IndexController {
 	@Autowired
 	private UserConverter userConverter;
     
-//  @RequestMapping(value = "${jwt.route.authentication.path}", method = RequestMethod.POST)
-//  public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
-//
-//      // Perform the security
-//      final Authentication authentication = authenticationManager.authenticate(
-//              new UsernamePasswordAuthenticationToken(
-//                      authenticationRequest.getUsername(),
-//                      authenticationRequest.getPassword()
-//              )
-//      );
-//      SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//      // Reload password post-security so we can generate token
-//      final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-//      final String token = jwtTokenUtil.generateToken(userDetails, device);
-//
-//      // Return the token
-//      return ResponseEntity.ok(new JwtAuthenticationResponse(token));
-//  }
-	
     @RequestMapping(value = "/api/auth", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
+    	
+    	// Benutzername leer
+    	if (authenticationRequest.getUsername() == null || authenticationRequest.getUsername().trim().isEmpty()) {
+    		RestMessage error = new RestMessage(400, "No Username set");
+    		return new ResponseEntity<RestMessage>(error, HttpStatus.BAD_REQUEST);
+    	}
+    	
+    	// Passwort leer
+    	if (authenticationRequest.getPassword() == null || authenticationRequest.getPassword().trim().isEmpty()) {
+    		RestMessage error = new RestMessage(400, "No Password set");
+    		return new ResponseEntity<RestMessage>(error, HttpStatus.BAD_REQUEST);
+    	}
+    	
+    	User user = userRepo.findByUsername(authenticationRequest.getUsername());
 
-        // Perform the security
-        Authentication authentication = authenticationManager.authenticate(
+    	// Benutzer existiert nicht
+    	if (user == null) {
+			RestMessage error = new RestMessage(404, "User [" + authenticationRequest.getUsername() + "] not found");
+			return new ResponseEntity<RestMessage>(error, HttpStatus.NOT_FOUND);
+    	}
+    	
+    	Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getUsername(),
                         authenticationRequest.getPassword()
                 )
         );
+        
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Reload password post-security so we can generate token
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        
-        User user = userRepo.findByUsername(authenticationRequest.getUsername());
         
         JwtUser jwtUser = userConverter.getJwtUser(user);
         
