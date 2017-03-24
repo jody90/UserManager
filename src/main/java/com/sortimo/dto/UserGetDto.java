@@ -14,13 +14,13 @@ public class UserGetDto extends SimpleUserDto {
 	
 	private Set<Role> roles = new HashSet<Role>(0);
 	
-	private List<Right> autohorities;
+	private List<Right> authorities;
 	
-	public UserGetDto(String username, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles, List<Right> autohorities) {
+	public UserGetDto(String username, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles, List<Right> authorities) {
 		super(username, firstname, lastname, email);
 		this.rights = rights;
 		this.roles = roles;
-		setAutohorities(autohorities);
+		setAuthorities(authorities);
 	}
 
 	public UserGetDto(User user) {
@@ -45,17 +45,17 @@ public class UserGetDto extends SimpleUserDto {
 		this.roles = roles;
 	}
 
-	public List<Right> getAutohorities() {
-		return autohorities;
+	public List<Right> getAuthorities() {
+		return authorities;
 	}
 
-	public void setAutohorities(List<Right> autohorities) {
-		this.autohorities = autohorities;
+	public void setAuthorities(List<Right> autohorities) {
+		this.authorities = autohorities;
 	}
 
 	@Override
 	public String toString() {
-		return "UserGetDto [rights=" + rights + ", roles=" + roles + ", autohorities=" + autohorities + ", toString()="
+		return "UserGetDto [rights=" + rights + ", roles=" + roles + ", authorities=" + authorities + ", toString()="
 				+ super.toString() + "]";
 	}
 	

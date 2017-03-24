@@ -23,7 +23,7 @@ public class JwtUser {
 	
 	private Set<Role> roles = new HashSet<Role>(0);
 	
-	private List<Right> autohorities;
+	private List<Right> authorities;
 	
 	public JwtUser() { }
 	
@@ -35,7 +35,7 @@ public class JwtUser {
 		this.password = password;
 		this.rights = rights;
 		this.roles = roles;
-		setAutohorities(authorities);
+		setAuthorities(authorities);
 	}
 
 	public String getUsername() {
@@ -94,19 +94,19 @@ public class JwtUser {
 		this.password = password;
 	}
 
-	public List<Right> getAutohorities() {
-		return autohorities;
+	public List<Right> getAuthorities() {
+		return authorities;
 	}
 
-	public void setAutohorities(List<Right> autohorities) {
-		this.autohorities = autohorities;
+	public void setAuthorities(List<Right> autohorities) {
+		this.authorities = autohorities;
 	}
 
 	@Override
 	public String toString() {
 		return "JwtUser [username=" + username + ", firstname=" + firstname + ", lastname=" + lastname + ", email="
-				+ email + ", password=" + password + ", rights=" + rights + ", roles=" + roles + ", autohorities="
-				+ autohorities + ", toString()=" + super.toString() + "]";
+				+ email + ", password=" + password + ", rights=" + rights + ", roles=" + roles + ", authorities="
+				+ authorities + ", toString()=" + super.toString() + "]";
 	}
 	
 }
