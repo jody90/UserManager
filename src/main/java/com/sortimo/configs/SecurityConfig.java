@@ -13,8 +13,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.sortimo.security.CorsFilter;
 import com.sortimo.security.JwtAuthenticationEntryPoint;
 import com.sortimo.security.JwtAuthenticationTokenFilter;
 import com.sortimo.security.MyUserDetailsService;
@@ -73,6 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ).permitAll()
         .antMatchers("/api/auth").permitAll()
         .anyRequest().authenticated();
+        
+        httpSecurity.addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class);
 
 		// Custom JWT based security filter
 		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
