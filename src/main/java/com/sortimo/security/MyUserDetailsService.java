@@ -77,7 +77,7 @@ public class MyUserDetailsService implements UserDetailsService {
 //		}
 		
 		// Build user's authorities
-		for (Right userRight : user.getAutohorities()) {
+		for (Right userRight : user.getAuthorities()) {
 			setAuths.add(new SimpleGrantedAuthority(userRight.getName()));
 		}		
 
