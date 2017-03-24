@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sortimo.converter.UserConverter;
 import com.sortimo.dto.UserGetDto;
 import com.sortimo.dto.UserPostDto;
 import com.sortimo.model.User;
@@ -24,6 +25,9 @@ public class UserService {
 	
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private UserConverter userConverter;
 	
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Timelog
@@ -54,7 +58,7 @@ public class UserService {
 		List<UserGetDto> userGetCollection = new ArrayList<>();
 		
 		for (User user : usersCollection) {
-			userGetCollection.add(new UserGetDto(user));
+			userGetCollection.add(userConverter.getUserGetDto(user));
 		}
 		
 		return userGetCollection;
@@ -69,7 +73,7 @@ public class UserService {
 			throw new NullPointerException();
 		}
 		
-		return new UserGetDto(dbUser);
+		return userConverter.getUserGetDto(dbUser);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)

@@ -1,9 +1,7 @@
 package com.sortimo.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sortimo.converter.UserConverter;
 import com.sortimo.model.Right;
-import com.sortimo.model.Role;
 import com.sortimo.repositories.UserRepository;
 
 @Service
@@ -59,28 +56,28 @@ public class MyUserDetailsService implements UserDetailsService {
 		
 		Collection<GrantedAuthority> setAuths = new HashSet<GrantedAuthority>();
 		
-		List<Right> allRights = new ArrayList<>();
-		
-		if (user.getRights() != null) {
-			for (Right right : user.getRights()) {
-				allRights.add(right);
-			}
-		}
-		
-		if (user.getRoles() != null) {
-			for (Role role : user.getRoles()) {
-				if (role.getRights() != null) {
-					for (Right right : role.getRights()) {
-						if (!allRights.contains(right)) {
-							allRights.add(right);
-						}
-					}
-				}
-			}
-		}
+//		List<Right> allRights = new ArrayList<>();
+//		
+//		if (user.getRights() != null) {
+//			for (Right right : user.getRights()) {
+//				allRights.add(right);
+//			}
+//		}
+//		
+//		if (user.getRoles() != null) {
+//			for (Role role : user.getRoles()) {
+//				if (role.getRights() != null) {
+//					for (Right right : role.getRights()) {
+//						if (!allRights.contains(right)) {
+//							allRights.add(right);
+//						}
+//					}
+//				}
+//			}
+//		}
 		
 		// Build user's authorities
-		for (Right userRight : allRights) {
+		for (Right userRight : user.getAutohorities()) {
 			setAuths.add(new SimpleGrantedAuthority(userRight.getName()));
 		}		
 

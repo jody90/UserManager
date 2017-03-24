@@ -1,6 +1,7 @@
 package com.sortimo.dto;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.sortimo.model.Right;
@@ -13,10 +14,13 @@ public class UserGetDto extends SimpleUserDto {
 	
 	private Set<Role> roles = new HashSet<Role>(0);
 	
-	public UserGetDto(String username, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles) {
+	private List<Right> autohorities;
+	
+	public UserGetDto(String username, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles, List<Right> autohorities) {
 		super(username, firstname, lastname, email);
 		this.rights = rights;
 		this.roles = roles;
+		setAutohorities(autohorities);
 	}
 
 	public UserGetDto(User user) {
@@ -41,9 +45,18 @@ public class UserGetDto extends SimpleUserDto {
 		this.roles = roles;
 	}
 
+	public List<Right> getAutohorities() {
+		return autohorities;
+	}
+
+	public void setAutohorities(List<Right> autohorities) {
+		this.autohorities = autohorities;
+	}
+
 	@Override
 	public String toString() {
-		return "UserGetDto [rights=" + rights + ", roles=" + roles + ", toString()=" + super.toString() + "]";
+		return "UserGetDto [rights=" + rights + ", roles=" + roles + ", autohorities=" + autohorities + ", toString()="
+				+ super.toString() + "]";
 	}
 	
 }

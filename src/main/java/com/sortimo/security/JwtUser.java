@@ -1,6 +1,7 @@
 package com.sortimo.security;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.sortimo.model.Right;
@@ -22,9 +23,11 @@ public class JwtUser {
 	
 	private Set<Role> roles = new HashSet<Role>(0);
 	
+	private List<Right> autohorities;
+	
 	public JwtUser() { }
 	
-	public JwtUser(String username, String firstname, String lastname, String email, String password, Set<Right> rights, Set<Role> roles) {
+	public JwtUser(String username, String firstname, String lastname, String email, String password, Set<Right> rights, Set<Role> roles, List<Right> authorities) {
 		this.username = username;
 		this.firstname = firstname;
 		this.lastname = lastname;
@@ -32,6 +35,7 @@ public class JwtUser {
 		this.password = password;
 		this.rights = rights;
 		this.roles = roles;
+		setAutohorities(authorities);
 	}
 
 	public String getUsername() {
@@ -90,10 +94,19 @@ public class JwtUser {
 		this.password = password;
 	}
 
+	public List<Right> getAutohorities() {
+		return autohorities;
+	}
+
+	public void setAutohorities(List<Right> autohorities) {
+		this.autohorities = autohorities;
+	}
+
 	@Override
 	public String toString() {
 		return "JwtUser [username=" + username + ", firstname=" + firstname + ", lastname=" + lastname + ", email="
-				+ email + ", password=" + password + ", rights=" + rights + ", roles=" + roles + "]";
+				+ email + ", password=" + password + ", rights=" + rights + ", roles=" + roles + ", autohorities="
+				+ autohorities + ", toString()=" + super.toString() + "]";
 	}
 	
 }
