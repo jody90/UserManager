@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+	<!-- Use DATETIME to persist date and time values -->
+	<changeSet author="jlerch" id="createTable-users">
+		<createTable tableName="users">
+			<column name="id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="created" type="datetime">
+				<constraints nullable="false" />
+			</column>
+			<column name="modified" type="datetime">
+				<constraints nullable="true" />
+			</column>
+			<column name="username" type="varchar(120)">
+				<constraints nullable="false" unique="true" />
+			</column>
+			<column name="password" type="varchar(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="lastname" type="varchar(120)">
+				<constraints nullable="false" />
+			</column>
+			<column name="firstname" type="varchar(120)">
+				<constraints nullable="false" />
+			</column>
+			<column name="email" type="varchar(120)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		<modifySql dbms="mysql">
+			<append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+		</modifySql>
+	</changeSet>
+	
+	<!-- Use DATETIME to persist date and time values -->
+	<changeSet author="jlerch" id="createTable-roles">
+		<createTable tableName="roles">
+			<column name="id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="created" type="datetime">
+				<constraints nullable="false" />
+			</column>
+			<column name="modified" type="datetime">
+				<constraints nullable="true" />
+			</column>
+			<column name="name" type="varchar(120)">
+				<constraints nullable="false" unique="true" />
+			</column>
+			<column name="description" type="longtext">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		<modifySql dbms="mysql">
+			<append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+		</modifySql>
+	</changeSet>
+	
+	<!-- Use DATETIME to persist date and time values -->
+	<changeSet author="jlerch" id="createTable-rights">
+		<createTable tableName="rights">
+			<column name="id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="created" type="datetime">
+				<constraints nullable="false" />
+			</column>
+			<column name="modified" type="datetime">
+				<constraints nullable="true" />
+			</column>
+			<column name="name" type="varchar(120)">
+				<constraints nullable="false" unique="true" />
+			</column>
+			<column name="description" type="longtext">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		<modifySql dbms="mysql">
+			<append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+		</modifySql>
+	</changeSet>
+	
+	<changeSet author="jlerch" id="createTable-roles_rights">
+		<createTable tableName="roles_rights">
+			<column name="role_id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="right_id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+		</createTable>
+		<modifySql dbms="mysql">
+			<append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+		</modifySql>
+	</changeSet>
+	
+	<changeSet author="jlerch" id="createTable-users_rights">
+		<createTable tableName="users_rights">
+			<column name="user_id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="right_id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+		</createTable>
+		<modifySql dbms="mysql">
+			<append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+		</modifySql>
+	</changeSet>
+	
+	<changeSet author="jlerch" id="createTable-users_roles">
+		<createTable tableName="users_roles">
+			<column name="user_id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+			<column name="role_id" type="binary(16)">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+		</createTable>
+		<modifySql dbms="mysql">
+			<append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+		</modifySql>
+	</changeSet>
+	
+	<!-- 
+	<changeSet author="jlerch" id="InsertTable-users">
+	    <insert tableName="users">
+			<column name="id" valueComputed="UUID()" />
+			<column name="created" value="1970-01-01 00:00:00" />
+			<column name="modified" value="1970-01-01 00:00:00" />
+			<column name="username" value="superadmin" />
+			<column name="password" value="$2a$10$o.HCljm8GNpG2cA.bFuhkuppOmZB9OcPyILs5FIthhuB.vEgSFzJK" />
+			<column name="lastname" value="super" />
+			<column name="firstname" value="admin" />
+			<column name="email" value="superadmin@sortimo.de" />
+	    </insert>
+	</changeSet>
+
+	<changeSet author="jlerch" id="InsertTable-rights">
+	    <insert tableName="rights">
+			<column name="id" value="4bb5dd9d28a54c91b3de480a5ec726bb" />
+			<column name="created" value="1970-01-01 00:00:00" />
+			<column name="modified" value="1970-01-01 00:00:00" />
+			<column name="name" value="superRight" />
+			<column name="description" value="Wer dieses Recht hat, ist der König der Welt." />
+	    </insert>
+	</changeSet>
+	
+	<changeSet author="jlerch" id="InsertTable-roles">
+	    <insert tableName="roles">
+			<column name="id" value="dfda3d8deb374175a016337a0c4c5ab0" />
+			<column name="created" value="1970-01-01 00:00:00" />
+			<column name="modified" value="1970-01-01 00:00:00" />
+			<column name="name" value="superAdmin" />
+			<column name="description" value="Gottgleiches Wesen" />
+	    </insert>
+	</changeSet>
+
+	<changeSet author="jlerch" id="InsertTable-roles_rights">
+	    <insert tableName="roles_rights">
+			<column name="role_id" value="dfda3d8deb374175a016337a0c4c5ab0" />
+			<column name="right_id" value="4bb5dd9d28a54c91b3de480a5ec726bb" />
+	    </insert>
+	</changeSet>
+	
+	<changeSet author="jlerch" id="InsertTable-users_roles">
+	    <insert tableName="users_roles">
+			<column name="user_id" value="3f732b3f211a433f3f447f3f15646932" />
+			<column name="role_id" value="dfda3d8deb374175a016337a0c4c5ab0" />
+	    </insert>
+	</changeSet>
+	 -->
+
+</databaseChangeLog>
