@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.UserConverter;
+import de.sortimo.rest.dto.SimpleRoleDto;
 import de.sortimo.rest.dto.UserGetDto;
 import de.sortimo.rest.dto.UserPostDto;
 import de.sortimo.service.RightService;
@@ -29,18 +32,24 @@ import de.sortimo.service.UserService;
 import de.sortimo.service.model.Right;
 import de.sortimo.service.model.Role;
 import de.sortimo.service.model.User;
+import de.sortimo.service.repositories.RightRepository;
 import de.sortimo.service.repositories.RoleRepository;
 import de.sortimo.service.repositories.UserRepository;
 
 @RestController
 @RequestMapping(value="/api/user")
 public class UserController {
-
-	@Autowired
-	private UserRepository userRepo;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 	
 	@Autowired
 	private RightService rightService;
+	
+	@Autowired
+	private RightRepository rightRepo;
+	
+	@Autowired
+	private UserRepository userRepo;
 	
 	@Autowired
 	private RoleRepository roleRepo;
@@ -52,18 +61,26 @@ public class UserController {
 	private UserConverter userConverter;
 	
 	/**
-	 * Liest alle Benutzer aus der Datenbank aus
+	 * Liest alle User aus der Datenbank
 	 * 
 	 * @return Collection von User Objekten
 	 */
-	@RequestMapping(value="", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showAllUsers')")
-	public @ResponseBody ResponseEntity<?> getAllUser() {
+	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	public @ResponseBody ResponseEntity<?> getAllUsers() {
+		
+		Optional<Iterable<User>> usersCollection = userService.findAllWithoutGraph();
 
-		List<UserGetDto> usersCollection = userService.findAll();
-				
+		// pruefen ob Rechte vorhanden sind
+		if (!usersCollection.isPresent()) {
+			LOGGER.info("GET Users: Es wurden keine Benutzer in der Datenbank gefunden.");
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "No Users found");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+		
+		List<SimpleUserDto> roles = userConverter.createDtoPreviewList(usersCollection.get());
+	
 		// response zurueck geben
-		return new ResponseEntity<List<UserGetDto>>(usersCollection, HttpStatus.OK);
+		return new ResponseEntity<List<SimpleRoleDto>>(roles, HttpStatus.OK);
 		
 	}
 	
@@ -289,7 +306,7 @@ public class UserController {
 
 		User user = userRepo.findByUsername(username).get();
 		
-		Role role = roleRepo.findByName(roleName);
+		Optional<Role> role = roleRepo.findByName(roleName);
 		
 		// pruefen ob rolle vorhanden
 		if (role == null) {
@@ -303,7 +320,7 @@ public class UserController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
-		user.getRoles().add(role);
+		user.getRoles().add(role.get());
 		
 		UserGetDto returnUser = userConverter.getUserGetDto(user);
 		
@@ -330,7 +347,7 @@ public class UserController {
 
 		User user = userRepo.findByUsername(username).get();
 		
-		Role role = roleRepo.findByName(roleName);
+		Optional<Role> role = roleRepo.findByName(roleName);
 		
 		// pruefen ob benutzer vorhanden ist
 		if (user == null) {

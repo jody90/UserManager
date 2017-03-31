@@ -3,10 +3,13 @@ package de.sortimo.rest.controller;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,20 +22,26 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.sortimo.base.rest.RestMessage;
+import de.sortimo.rest.converter.RoleConverter;
+import de.sortimo.rest.dto.SimpleRoleDto;
 import de.sortimo.service.RightService;
+import de.sortimo.service.RoleService;
 import de.sortimo.service.model.Right;
 import de.sortimo.service.model.Role;
-import de.sortimo.service.repositories.RoleRepository;
 
 @RestController
 @RequestMapping(value="/api/role")
 public class RoleController {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(RoleController.class);
+	
 	@Autowired
-	private RoleRepository roleRepo;
+	private RoleService roleService;
 	
 	@Autowired
 	private RightService rightService;
+	
+	private RoleConverter roleConverter = new RoleConverter();
 
 	/**
 	 * Liest alle Rollen aus der Datenbank
@@ -42,32 +51,44 @@ public class RoleController {
 	@RequestMapping(method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody ResponseEntity<?> getAllRoles() {
 		
-		Iterable<Role> rolesCollection = roleRepo.findAll();
+		Optional<Iterable<Role>> rolesCollection = roleService.findAll();
 
+		// pruefen ob Rechte vorhanden sind
+		if (!rolesCollection.isPresent()) {
+			LOGGER.info("GET Roles: Es wurden keine Rollen in der Datenbank gefunden.");
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "No Roles found");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+		
+		List<SimpleRoleDto> roles = roleConverter.createDtoList(rolesCollection.get());
+	
 		// response zurueck geben
-		return new ResponseEntity<Iterable<Role>>(rolesCollection, HttpStatus.OK);
+		return new ResponseEntity<List<SimpleRoleDto>>(roles, HttpStatus.OK);
 		
 	}
 	
 	/**
-	 * Fuegt eine Rolle hinzu
+	 * Fuegt ein neues Recht in die Datenbank ein
 	 * 
-	 * @param role
+	 * @param right
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
-	public @ResponseBody ResponseEntity<?> addRole(@RequestBody Role role, HttpServletRequest request) throws MalformedURLException {
+	public @ResponseBody ResponseEntity<?> addRole(@RequestBody Role tRole, HttpServletRequest request) throws MalformedURLException {
 
-		// pruefen ob Rolle bereits vorhanden ist
-		if (roleRepo.findByName(role.getName()) != null) {
-			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "Role [" + role.getName() + "] already defined");
+		// pruefen ob Recht bereits vorhanden ist
+		if (roleService.findByName(tRole.getName()).isPresent()) {
+			LOGGER.info("POST Role: Rolle {} existiert bereits", tRole.getName());
+			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "Role [" + tRole.getName() + "] already defined");
 			return new ResponseEntity<RestMessage>(message, message.getState());
-		}
-
-		// Benutzer speichern
-		roleRepo.save(role);
+		}	
+		
+		// Recht speichern
+		roleService.save(tRole);
+		
+		SimpleRoleDto role = roleConverter.createDto(tRole);
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
@@ -77,12 +98,12 @@ public class RoleController {
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben
-	    return new ResponseEntity<Role>(role, headers, HttpStatus.CREATED);
+	    return new ResponseEntity<SimpleRoleDto>(role, headers, HttpStatus.CREATED);
 
 	}
 	
 	/**
-	 * Liest eine Rolle aus der Datenbank
+	 * Liest ein Rolle aus der Datenbank
 	 * 
 	 * @param roleId
 	 * @return Role Object
@@ -90,20 +111,23 @@ public class RoleController {
 	@RequestMapping(value="/{roleName}", method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody ResponseEntity<?> getRole(@PathVariable String roleName) {
 
-		Role role = roleRepo.findByName(roleName);
+		Optional<Role> tRole = roleService.findByName(roleName);
 
-		// pruefen ob benutzer vorhanden ist
-		if (role == null) {
+		// pruefen ob Rolle vorhanden ist
+		if (!tRole.isPresent()) {
+			LOGGER.info("GET Role: Rolle {} existiert nicht", roleName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not found");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
+		SimpleRoleDto role = roleConverter.createDto(tRole.get());
+		
 		// response zurueck geben
-		return new ResponseEntity<Role>(role, HttpStatus.OK);
+		return new ResponseEntity<SimpleRoleDto>(role, HttpStatus.OK);
 	}
 
 	/**
-	 * Loescht eine Rolle aus der Datenbank
+	 * Loescht ein Rolle aus der Datenbank
 	 * 
 	 * @param roleId
 	 * @return
@@ -111,139 +135,133 @@ public class RoleController {
 	@RequestMapping(value="/{roleName}", method = RequestMethod.DELETE, produces="application/json")
 	public @ResponseBody ResponseEntity<?> deleteRole(@PathVariable String roleName) {
 
-		Role role = roleRepo.findByName(roleName);
+		Optional<Role> tRole = roleService.findByName(roleName);
 
 		// pruefen ob Rolle vorhanden ist
-		if (role == null) {
+		if (!tRole.isPresent()) {
+			LOGGER.info("DELETE Role: Rolle {} existiert nicht", roleName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not found! Cannot delete");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
-		roleRepo.delete(role);
+		roleService.delete(tRole.get());
 
 		RestMessage message = new RestMessage(HttpStatus.OK, "Role [" + roleName + "] successfully deleted");
 
 		// response zurueck geben
-		return new ResponseEntity<RestMessage>(message , message.getState());
+		return new ResponseEntity<RestMessage>(message , HttpStatus.OK);
 	}
 
 	/**
-	 * Dated eine Rolle in der Datenbank ab
+	 * Dated ein Rolle in der Datenbank ab
 	 * 
-	 * @param role
-	 * @param roleId
+	 * @param tRole
+	 * @param roleName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{roleName}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
-	public @ResponseBody ResponseEntity<?> updateRole(@RequestBody Role role, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
-
-		Role storedRole = roleRepo.findByName(roleName);
+	public @ResponseBody ResponseEntity<?> updateRole(@RequestBody Role tRole, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 		
-		// pruefen ob Rolle bereits vorhanden ist
-		if (storedRole == null) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists. Create it first");
+		// Rolle updaten
+		Optional<Role> role = roleService.update(roleName, tRole);
+		
+		if (!role.isPresent()) {
+			LOGGER.info("PUT Role: Rolle {} konnte nicht upgedated werden.", roleName);
+			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "Role [" + roleName + "] update not possible");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
-		
-		role.setId(storedRole.getId());
-
-		// Rolle speichern
-		roleRepo.save(role);
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/role/" + role.getName());
+	    URI locationUri = URI.create(hostUri + "/api/role/" + role.get().getName());
 	    headers.setLocation(locationUri);
 
 	    // response zurueck geben
-	    return new ResponseEntity<Role>(role, headers, HttpStatus.OK);
+	    return new ResponseEntity<Role>(role.get(), headers, HttpStatus.OK);
 
 	}
 	
 	/**
 	 * Fuegt einer Rolle ein Recht hinzu
 	 * 
-	 * @param roleId
-	 * @param rightId
+	 * @param roleName
+	 * @param rightName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{roleName}/right/{rightName}", method = RequestMethod.PUT , produces="application/json")
-	public @ResponseBody ResponseEntity<?> userAddRight(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
+	public @ResponseBody ResponseEntity<?> userAddRole(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
-		Role role = roleRepo.findByName(roleName);
+		Optional<Role> role = roleService.findByName(roleName);
 		
 		Optional<Right> right = rightService.findByName(rightName);
 		
 		// pruefen ob Recht vorhanden
-		if (!right.isPresent()) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + rightName + "] not exists.");
+		if (!role.isPresent()) {
+			LOGGER.info("PUT Role Right: Rolle {} existiert nicht.", roleName);
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists. Create it first.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
 		// pruefen ob Rolle vorhanden ist
-		if (role == null) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists. Create it first");
+		if (!right.isPresent()) {
+			LOGGER.info("PUT Role Right: Recht {} existiert nicht.", rightName);
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Recht [" + rightName + "] not exists. Create it first.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
-		role.getRights().add(right.get());
+		Optional<Role> tRole = roleService.roleAddRight(roleName, right.get());
 		
-		// Benutzer speichern
-		roleRepo.save(role);
 
+		SimpleRoleDto responseRole = roleConverter.createDto(tRole.get());
+		
 	    // response zurueck geben
-	    return new ResponseEntity<Role>(role, HttpStatus.OK);
+	    return new ResponseEntity<SimpleRoleDto>(responseRole, HttpStatus.OK);
 
 	}
 	
 	/**
 	 * Entfernt ein Recht von einer Rolle
 	 * 
-	 * @param roleId
-	 * @param rightId
+	 * @param roleName
+	 * @param rightName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	@RequestMapping(value="/{roleName}/right/{rightName}", method = RequestMethod.DELETE, produces="application/json")
-	public @ResponseBody ResponseEntity<?> userRemoveRight(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
+	@RequestMapping(value="/{roleName}/role/{rightName}", method = RequestMethod.DELETE, produces="application/json")
+	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
-		Role role = roleRepo.findByName(roleName);
+		Optional<Role> role = roleService.findByName(roleName);
 		
 		Optional<Right> right = rightService.findByName(rightName);
 		
 		// pruefen ob Rolle vorhanden ist
-		if (role == null) {
+		if (!role.isPresent()) {
+			LOGGER.info("DELETE Role Right: Rolle {} existiert nicht.", roleName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
 		// pruefen ob recht vorhanden
 		if (!right.isPresent()) {
+			LOGGER.info("DELETE Role Right: Recht {} existiert nicht.", rightName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + rightName + "] not exists.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
-		
-		// prufen ob Rolle das Recht beinhaltet
-		if (!role.getRights().contains(right)) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] does not contain the right [" + rightName + "]. Could not be deleted!");
-			return new ResponseEntity<RestMessage>(message, message.getState());
-		}
 
-		// recht von rolle entfernen
-		role.getRights().remove(right);
+		// Recht von Rolle entfernen
+		Optional<Role> tRole = roleService.removeRightFromRole(roleName, right.get());
 		
-		// Rolle speichern
-		roleRepo.save(role);
+		SimpleRoleDto responseRole = roleConverter.createDto(tRole.get());
 
 	    // response zurueck geben
-	    return new ResponseEntity<Role>(role, HttpStatus.OK);
+	    return new ResponseEntity<SimpleRoleDto>(responseRole, HttpStatus.OK);
 
 	}
 	

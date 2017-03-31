@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.persistence.EntityGraph;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,18 +67,10 @@ public class UserService {
 		
 	}
 	
-	@Deprecated
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public List<UserGetDto> findAll() {
-		Iterable<User> usersCollection = userRepo.findAll();
-		List<UserGetDto> userGetCollection = new ArrayList<>();
-		
-		for (User user : usersCollection) {
-			userGetCollection.add(userConverter.getUserGetDto(user));
-		}
-		
-		return userGetCollection;
+	public Optional<Iterable<User>> findAllWithoutGraph() {
+		return userRepo.findAllWithoutGraph();
 	}
 
 	@Deprecated
@@ -187,9 +181,11 @@ public class UserService {
 				rightService.save(right);
 			 }
 
-			Role role = roleRepo.findByName("superAdmin");
+			Optional<Role> tRole = roleRepo.findByName("superAdmin");
 			
-			if (role == null) {
+			Role role = null;
+			
+			if (!tRole.isPresent()) {
 				
 				LOGGER.info("User: superAdmin not Found! Create it.");				
 				
