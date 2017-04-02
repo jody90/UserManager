@@ -25,8 +25,8 @@ public class UserConverter {
 		
 		SimpleUserDto simpleUserDto = new SimpleUserDto();
 		simpleUserDto.setId(user.getId());
-		simpleUserDto.setCreated(user.getCreateDate().toString());
-		simpleUserDto.setModified(user.getModifyDate().toString());
+		simpleUserDto.setCreated(user.getCreateDate());
+		simpleUserDto.setModified(user.getModifyDate());
 		simpleUserDto.setUsername(user.getUsername());
 		simpleUserDto.setFirstname(user.getFirstname());
 		simpleUserDto.setLastname(user.getLastname());

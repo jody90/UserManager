@@ -17,10 +17,11 @@ public class Right extends AbstractEntity {
 	
 	@Column(name = "description", nullable = true)	
 	private String description;
-		
-	protected Right() {}
 	
+	protected Right() {}
+		
 	public Right(String name, String description) {
+		super();
 		this.name = name;
 		this.description = description;
 	}

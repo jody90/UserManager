@@ -45,14 +45,4 @@ public class UserManagerApplication {
 				.build();
 	}
 	
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.setSerializationInclusion(Include.NON_NULL);
-//        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-//        objectMapper.registerSubtypes(UserPostDto.class);
-//        return objectMapper;
-//    }
-
-		
 }

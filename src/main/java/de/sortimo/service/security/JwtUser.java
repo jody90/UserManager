@@ -25,7 +25,7 @@ public class JwtUser {
 	
 	private List<Right> authorities;
 	
-	public JwtUser() { }
+	public JwtUser() { }	
 	
 	public JwtUser(String username, String firstname, String lastname, String email, String password, Set<Right> rights, Set<Role> roles, List<Right> authorities) {
 		this.username = username;

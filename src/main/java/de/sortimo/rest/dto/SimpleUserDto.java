@@ -1,14 +1,15 @@
 package de.sortimo.rest.dto;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class SimpleUserDto {
 	
 	private UUID id;
 	
-	private String created;
+	private LocalDateTime created;
 	
-	private String modified;
+	private LocalDateTime modified;
 
 	private String username;
 	
@@ -38,19 +39,19 @@ public class SimpleUserDto {
 		this.id = id;
 	}
 
-	public String getCreated() {
+	public LocalDateTime getCreated() {
 		return created;
 	}
 
-	public void setCreated(String created) {
-		this.created = created;
+	public void setCreated(LocalDateTime localDateTime) {
+		this.created = localDateTime;
 	}
 
-	public String getModified() {
+	public LocalDateTime getModified() {
 		return modified;
 	}
 
-	public void setModified(String modified) {
+	public void setModified(LocalDateTime modified) {
 		this.modified = modified;
 	}
 

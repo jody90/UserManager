@@ -26,13 +26,22 @@ public class Role extends AbstractEntity {
 	@Column(name = "description", nullable = true)
 	private String description;
 	
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "roles_rights", joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))   
 	private Set<Right> rights = new HashSet<Right>(0);
 	
     public Role() {}
 	
-    public Role(String name, String description) {
+    public Role(String name, String description, Set<Right> rights) {
+		super();
+		this.name = name;
+		this.description = description;
+		this.rights = rights;
+	}
+
+
+
+	public Role(String name, String description) {
 		this.setName(name);
 		this.setDescription(description);
 	}
