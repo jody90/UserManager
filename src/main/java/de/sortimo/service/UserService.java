@@ -17,6 +17,8 @@ import de.sortimo.base.aspects.Timelog;
 import de.sortimo.service.model.Right;
 import de.sortimo.service.model.Role;
 import de.sortimo.service.model.User;
+import de.sortimo.service.repositories.RightRepository;
+import de.sortimo.service.repositories.RoleRepository;
 import de.sortimo.service.repositories.UserRepository;
 
 @Service
@@ -86,8 +88,8 @@ public class UserService {
 			
 			updateUser.setUsername(user.getUsername());
 			
-			if (StringUtils.isNotEmpty(user.getEmail())) {
-				updateUser.setFirstname(user.getEmail());
+			if (StringUtils.isNotEmpty(user.getFirstname())) {
+				updateUser.setFirstname(user.getFirstname());
 			}
 			
 			if (StringUtils.isNotEmpty(user.getLastname())) {
@@ -125,7 +127,8 @@ public class UserService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Optional<User> userAddRole(String username, Role role) {
 		Optional<User> tUser = userRepo.findByUsername(username);
-		tUser.get().getRoles().add(role);
+		Role tRole = roleService.findByName(role.getName()).get();
+		tUser.get().getRoles().add(tRole);
 		LOGGER.info("User [{}] wurde Rolle [{}] hinzugefügt.", username, role.getName());
 		return tUser;
 	}
