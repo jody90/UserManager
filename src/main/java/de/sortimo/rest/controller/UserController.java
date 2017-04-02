@@ -24,17 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.UserConverter;
-import de.sortimo.rest.dto.SimpleRoleDto;
-import de.sortimo.rest.dto.UserGetDto;
-import de.sortimo.rest.dto.UserPostDto;
+import de.sortimo.rest.dto.SimpleUserDto;
 import de.sortimo.service.RightService;
+import de.sortimo.service.RoleService;
 import de.sortimo.service.UserService;
 import de.sortimo.service.model.Right;
 import de.sortimo.service.model.Role;
 import de.sortimo.service.model.User;
-import de.sortimo.service.repositories.RightRepository;
-import de.sortimo.service.repositories.RoleRepository;
-import de.sortimo.service.repositories.UserRepository;
 
 @RestController
 @RequestMapping(value="/api/user")
@@ -43,19 +39,13 @@ public class UserController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 	
 	@Autowired
+	private UserService userService;
+
+	@Autowired
 	private RightService rightService;
 	
 	@Autowired
-	private RightRepository rightRepo;
-	
-	@Autowired
-	private UserRepository userRepo;
-	
-	@Autowired
-	private RoleRepository roleRepo;
-	
-	@Autowired
-	private UserService userService;
+	private RoleService roleService;
 	
 	@Autowired
 	private UserConverter userConverter;
@@ -77,10 +67,10 @@ public class UserController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		List<SimpleUserDto> roles = userConverter.createDtoPreviewList(usersCollection.get());
+		List<SimpleUserDto> users = userConverter.createDtoPreviewList(usersCollection.get());
 	
 		// response zurueck geben
-		return new ResponseEntity<List<SimpleRoleDto>>(roles, HttpStatus.OK);
+		return new ResponseEntity<List<SimpleUserDto>>(users, HttpStatus.OK);
 		
 	}
 	
@@ -94,18 +84,19 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showUser')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
-		UserGetDto user = null;
-		
-		try {		
-			user = userService.findByUsername(username);
-		}
-		catch (NullPointerException e) {
+		Optional<User> tUser = userService.findByUsername(username);
+
+		if (!tUser.isPresent()) {
+			LOGGER.info("GET User: Es wurde ein Benutzer [{}] angefragt der nicht in der Datenbank existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not found");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
+		
+		
+		SimpleUserDto user = userConverter.createPreviewDto(tUser.get());
 
 		// response zurueck geben
-		return new ResponseEntity<UserGetDto>(user, HttpStatus.OK);
+		return new ResponseEntity<SimpleUserDto>(user, HttpStatus.OK);
 		
 	}
 
@@ -119,26 +110,31 @@ public class UserController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_createUser')")
-	public @ResponseBody ResponseEntity<?> register(@RequestBody UserPostDto user, HttpServletRequest request) throws MalformedURLException {
+	public @ResponseBody ResponseEntity<?> register(@RequestBody User pUser, HttpServletRequest request) throws MalformedURLException {
+		
+		Optional<User> tUser = userService.findByUsername(pUser.getUsername());
 		
 		// pruefen ob benutzer bereits vorhanden ist
-		if (userService.userExists(user)) {
-			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "User [" + user.getUsername() + "] already defined");
+		if (tUser.isPresent()) {
+			LOGGER.info("POST User: Es wurde ein verucht einen Benutzer [{}] anzulegen, der schon existiert.", pUser.getUsername());
+			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "User [" + pUser.getUsername() + "] already defined");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
 		// Benutzer speichern
-		UserPostDto savedUser = userService.save(user);
+		User savedUser = userService.save(pUser.getUsername(), pUser.getPassword(), pUser.getFirstname(), pUser.getLastname(), pUser.getEmail());
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/user/" + user.getUsername());
+	    URI locationUri = URI.create(hostUri + "/api/user/" + savedUser.getUsername());
 	    headers.setLocation(locationUri);
+	    
+	    SimpleUserDto user = userConverter.createPreviewDto(savedUser);
 
 	    // response zurueck geben
-	    return new ResponseEntity<UserPostDto>(savedUser, headers, HttpStatus.CREATED);
+	    return new ResponseEntity<SimpleUserDto>(user, headers, HttpStatus.CREATED);
 
 	}
 	
@@ -152,20 +148,30 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_deleteUser')")
 	public @ResponseBody ResponseEntity<?> deleteUser(@PathVariable String username) {
 
-		try {
-			UserGetDto user = userService.findByUsername(username);
-			
-			userService.delete(user);
-			
-			RestMessage message = new RestMessage(HttpStatus.OK, "User [" + username + "] successfully deleted");
-
-			// response zurueck geben
-			return new ResponseEntity<RestMessage>(message , message.getState());
-		}
-		catch (NullPointerException e) {
+		Optional<User> tUser = userService.findByUsername(username);
+		
+		if (!tUser.isPresent()) {
+			LOGGER.info("DELETE User: Es wurde ein verucht einen Benutzer [{}] zu löschen, der nicht existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not found! Cannot delete");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
+		
+		User user = tUser.get();
+		
+		if (user.getUsername().equals("superadmin")) {
+			LOGGER.info("DELETE User: Es wurde ein verucht den Benutzer [{}] zu löschen, nicht erlaubt.", user.getUsername());
+			RestMessage message = new RestMessage(HttpStatus.FORBIDDEN, "User [" + user.getUsername() + "] cannot be deleted");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+		
+		if (!userService.delete(user.getId())) {
+			LOGGER.info("DELETE User: Benutzer [{}] wurde gelöscht.", user.getUsername());
+			RestMessage message = new RestMessage(HttpStatus.INTERNAL_SERVER_ERROR, "User [" + user.getUsername() + "] was not deleted");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+		
+		RestMessage message = new RestMessage(HttpStatus.OK, "User [" + user.getUsername() + "] deleted");
+		return new ResponseEntity<RestMessage>(message, message.getState());
 
 	}
 
@@ -180,25 +186,23 @@ public class UserController {
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_updateUser')")
-	public @ResponseBody ResponseEntity<?> update(@RequestBody User user, @PathVariable String username,  HttpServletRequest request) throws MalformedURLException {
+	public @ResponseBody ResponseEntity<?> update(@RequestBody User pUser, @PathVariable String username,  HttpServletRequest request) throws MalformedURLException {
 
-		try {
-			userService.findByUsername(username);
-			
-			user.setUsername(username);
-			
-			// Benutzer speichern
-			userRepo.save(user);
-			
-			// response zurueck geben
-			return new ResponseEntity<User>(user, HttpStatus.OK);
-		}
-		catch (NullPointerException e) {
-			
+		Optional<User> tUser = userService.findByUsername(username);
+		
+		if (!tUser.isPresent()) {
+			LOGGER.info("PUT User: Es wurde ein verucht einen Benutzer [{}] zu aktualisieren, der nicht existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(message, message.getState());
-		
 		}
+		
+		User updatedUser = userService.update(username, pUser).get();
+		    
+	    SimpleUserDto userResponse = userConverter.createPreviewDto(updatedUser);
+
+	    // response zurueck geben
+	    return new ResponseEntity<SimpleUserDto>(userResponse, HttpStatus.OK);
+		
 
 	}
 	
@@ -206,40 +210,39 @@ public class UserController {
 	 * Fuegt einem User ein Recht hinzu
 	 * 
 	 * @param username
-	 * @param rightId
+	 * @param rightName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	@RequestMapping(value="/{username}/right/{rightName}", method = RequestMethod.PUT	, produces="application/json")
+	@RequestMapping(value="/{username}/right/{rightName}", method = RequestMethod.PUT, produces="application/json")
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userAddRight')")
 	public @ResponseBody ResponseEntity<?> userAddRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
-		User user = userRepo.findByUsername(username).get();
+		Optional<User> tUser = userService.findByUsername(username);
 
-		Optional<Right> right = rightService.findByName(rightName);
+		Optional<Right> tRight = rightService.findByName(rightName);
 		
 		// pruefen ob recht vorhanden
-		if (user == null) {
+		if (!tUser.isPresent()) {
+			LOGGER.info("PUT User Right: Es wurde verucht einen Benutzer [{}] zu aktualisieren, der nicht existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
 		// pruefen ob recht vorhanden
-		if (!right.isPresent()) {
+		if (!tRight.isPresent()) {
+			LOGGER.info("PUT User Right: Es wurde verucht einem Benutzer [{}] ein Recht [{}] zu geben das nicht existiert.", username, rightName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + rightName + "] not exists.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
-			
-		user.getRights().add(right.get());
-			
-		UserGetDto returnUser = userConverter.getUserGetDto(user);
 		
-		// Benutzer speichern
-		userService.save(userConverter.getUserPostDto(user));
-			
-		// response zurueck geben
-		return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
+		User updatedUser = userService.userAddRight(username, tRight.get()).get();
+		
+		SimpleUserDto responseUser = userConverter.createPreviewDto(updatedUser);
+		
+	    // response zurueck geben
+	    return new ResponseEntity<SimpleUserDto>(responseUser, HttpStatus.OK);
 
 	}
 	
@@ -247,7 +250,7 @@ public class UserController {
 	 * Entfernt ein Recht vom User
 	 * 
 	 * @param username
-	 * @param rightId
+	 * @param rightName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
@@ -256,79 +259,85 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userRemoveRight')")
 	public @ResponseBody ResponseEntity<?> userRemoveRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
-		User user = userRepo.findByUsername(username).get();
+		Optional<User> tUser = userService.findByUsername(username);
 		
-		Optional<Right> right = rightService.findByName(rightName);
+		Optional<Right> tRight = rightService.findByName(rightName);
 		
 		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
+		if (!tUser.isPresent()) {
+			LOGGER.info("DELETE User Right: Es wurde verucht einen Benutzer [{}] zu aktualisieren, der nicht existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
 		// pruefen ob recht vorhanden
-		if (!right.isPresent()) {
+		if (!tRight.isPresent()) {
+			LOGGER.info("DELETE User Right: Es wurde verucht einem Benutzer [{}] ein Recht [{}] zu entziehen das nicht existiert.", username, rightName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + rightName + "] not exists.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
+		User currentUser = tUser.get();
+		Right currentRight = tRight.get();
+		
 		// prufen ob user das recht besitzt
-		if (!user.getRights().contains(right.get())) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] does not have the right [" + rightName + "]. Could not be deleted!");
+		if (!currentUser.getRights().contains(currentRight)) {
+			LOGGER.info("DELETE User Right: Es wurde verucht einem Benutzer [{}] ein Recht [{}] zu entziehen das er garnicht besitzt.", username, rightName);
+			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "User [" + username + "] does not have the right [" + rightName + "]. Could not be deleted!");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
 		// recht von benutzer entfernen
-		user.getRights().remove(right.get());
+		User updatedUser = userService.removeRightFromUser(username, currentRight).get();
 		
-		UserGetDto returnUser = userConverter.getUserGetDto(user);
-		
-		// benutzer speichern
-		userService.save(userConverter.getUserPostDto(user));
+		SimpleUserDto returnUser = userConverter.createPreviewDto(updatedUser);
 
 	    // response zurueck geben
-	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
+	    return new ResponseEntity<SimpleUserDto>(returnUser, HttpStatus.OK);
 
 	}
+	
+	
+	
+	
 	
 	/**
 	 * Fuegt einem User eine Rolle hinzu
 	 * 
 	 * @param username
-	 * @param roleId
+	 * @param roleName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.PUT	, produces="application/json")
+	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.PUT, produces="application/json")
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userAddRole')")
 	public @ResponseBody ResponseEntity<?> userAddRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
-		User user = userRepo.findByUsername(username).get();
+		Optional<User> tUser = userService.findByUsername(username);
+
+		Optional<Role> tRole = roleService.findByName(roleName);
 		
-		Optional<Role> role = roleRepo.findByName(roleName);
-		
-		// pruefen ob rolle vorhanden
-		if (role == null) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists.");
-			return new ResponseEntity<RestMessage>(message, message.getState());
-		}
-		
-		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
+		// pruefen ob recht vorhanden
+		if (!tUser.isPresent()) {
+			LOGGER.info("PUT User Role: Es wurde verucht einen Benutzer [{}] zu aktualisieren, der nicht existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
-
-		user.getRoles().add(role.get());
 		
-		UserGetDto returnUser = userConverter.getUserGetDto(user);
+		// pruefen ob recht vorhanden
+		if (!tRole.isPresent()) {
+			LOGGER.info("PUT User Role: Es wurde verucht einem Benutzer [{}] eine Rolle [{}] zu geben das nicht existiert.", username, roleName);
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + roleName + "] not exists.");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+			
+		User updatedUser = userService.userAddRole(username, tRole.get()).get();
 		
-		// benutzer speichern
-		userService.save(userConverter.getUserPostDto(user));
-
+		SimpleUserDto responseUser = userConverter.createPreviewDto(updatedUser);
+		
 	    // response zurueck geben
-	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
+	    return new ResponseEntity<SimpleUserDto>(responseUser, HttpStatus.OK);
 
 	}
 	
@@ -336,47 +345,50 @@ public class UserController {
 	 * Entfernt eine Rolle vom User
 	 * 
 	 * @param username
-	 * @param roleId
+	 * @param roleName
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userRemoveRole')")
-	public @ResponseBody ResponseEntity<?> userRemoveRoles(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
+	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userRemoveRight')")
+	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
-		User user = userRepo.findByUsername(username).get();
+		Optional<User> tUser = userService.findByUsername(username);
 		
-		Optional<Role> role = roleRepo.findByName(roleName);
+		Optional<Role> tRole = roleService.findByName(roleName);
 		
 		// pruefen ob benutzer vorhanden ist
-		if (user == null) {
+		if (!tUser.isPresent()) {
+			LOGGER.info("DELETE User Role: Es wurde verucht einen Benutzer [{}] zu aktualisieren, der nicht existiert.", username);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not exists. Create it first");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		// pruefen ob rolle vorhanden
-		if (role == null) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists.");
+		// pruefen ob recht vorhanden
+		if (!tRole.isPresent()) {
+			LOGGER.info("DELETE User Role: Es wurde verucht einem Benutzer [{}] eine Rolle [{}] zu entziehen das nicht existiert.", username, roleName);
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + roleName + "] not exists.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		// prufen ob user die Rolle besitzt
-		if (!user.getRoles().contains(role)) {
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] does not have the role [" + roleName + "]. Could not be deleted!");
+		User currentUser = tUser.get();
+		Role currentRole = tRole.get();
+		
+		// prufen ob user das recht besitzt
+		if (!currentUser.getRights().contains(currentRole)) {
+			LOGGER.info("DELETE User Role: Es wurde verucht einem Benutzer [{}] eine Rolle [{}] zu entziehen das er garnicht besitzt.", username, roleName);
+			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "User [" + username + "] does not have the role [" + roleName + "]. Could not be deleted!");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
 		// recht von benutzer entfernen
-		user.getRoles().remove(role);
+		User updatedUser = userService.removeRoleFromUser(username, currentRole).get();
 		
-		UserGetDto returnUser = userConverter.getUserGetDto(user);
-		
-		// benutzer speichern
-		userService.save(userConverter.getUserPostDto(user));
+		SimpleUserDto returnUser = userConverter.createPreviewDto(updatedUser);
 
 	    // response zurueck geben
-	    return new ResponseEntity<UserGetDto>(returnUser, HttpStatus.OK);
+	    return new ResponseEntity<SimpleUserDto>(returnUser, HttpStatus.OK);
 
 	}
 	

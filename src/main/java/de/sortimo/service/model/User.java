@@ -12,8 +12,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedEntityGraphs;
-import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 
 import de.sortimo.base.persistence.AbstractEntity;

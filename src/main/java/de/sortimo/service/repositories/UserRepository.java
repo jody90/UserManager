@@ -5,14 +5,13 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import de.sortimo.service.model.User;
 
-public interface UserRepository extends CrudRepository<User, Long>, JpaRepository<User,Long>, UserCustomOperations {
+public interface UserRepository extends CrudRepository<User, Long> {
 	
 //	Iterable<User> findAll();
 	
