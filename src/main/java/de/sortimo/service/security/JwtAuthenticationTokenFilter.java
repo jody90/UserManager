@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import de.sortimo.rest.dto.JwtUserDto;
+
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationTokenFilter.class);
@@ -37,7 +39,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
     	
     	String authToken = request.getHeader(this.tokenHeader);
-    	JwtUser user = null;
+    	JwtUserDto user = null;
     	
     	LOG.info("authToken: {}", authToken);
     	

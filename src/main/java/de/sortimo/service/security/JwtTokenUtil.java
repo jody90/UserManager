@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.sortimo.rest.dto.JwtUserDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -46,15 +47,15 @@ public class JwtTokenUtil implements Serializable {
         return username;
     }
     
-    public JwtUser getUserFromToken(String token) {
-    	JwtUser user;
+    public JwtUserDto getUserFromToken(String token) {
+    	JwtUserDto user;
         ObjectMapper mapper = new ObjectMapper();
         
         try {
             Claims claims = getClaimsFromToken(token);
         
             String userJson = claims.get("user") + "";
-            user = mapper.readValue(userJson, JwtUser.class);
+            user = mapper.readValue(userJson, JwtUserDto.class);
             
 //            System.out.println("user: " + user);
             
@@ -126,7 +127,7 @@ public class JwtTokenUtil implements Serializable {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
     }
 
-    public String generateToken(UserDetails userDetails, JwtUser user) {
+    public String generateToken(UserDetails userDetails, JwtUserDto user) {
 
     	ObjectMapper mapper = new ObjectMapper();
 

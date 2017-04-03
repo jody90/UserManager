@@ -1,8 +1,9 @@
 package de.sortimo.rest.converter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import de.sortimo.rest.dto.JwtRightDto;
 import de.sortimo.rest.dto.SimpleRightDto;
 import de.sortimo.service.model.Right;
 
@@ -19,13 +20,35 @@ public class RightConverter {
 		
 		return simpleRightDto;
 	}
-
-	public List<SimpleRightDto> createDtoList(Iterable<Right> tRights) {
+	
+	public JwtRightDto createJwtRightDto(Right right) {
+		JwtRightDto jwtRightDto = new JwtRightDto();
+		jwtRightDto.setId(right.getId());
+		jwtRightDto.setCreated(right.getCreateDate());
+		jwtRightDto.setModified(right.getModifyDate());
+		jwtRightDto.setName(right.getName());
+		jwtRightDto.setDescription(right.getDescription());
 		
-		List<SimpleRightDto> rightsList = new ArrayList<>();
+		return jwtRightDto;
+	}
+
+	public Set<SimpleRightDto> createDtoList(Iterable<Right> tRights) {
+		
+		Set<SimpleRightDto> rightsList = new HashSet<>();
 		
 		for (Right right : tRights) {
 			rightsList.add(this.createDto(right));
+		}
+		
+		return rightsList;
+	}
+	
+	public Set<JwtRightDto> createJwtRightDtoList(Iterable<Right> tRights) {
+		
+		Set<JwtRightDto> rightsList = new HashSet<>();
+		
+		for (Right right : tRights) {
+			rightsList.add(this.createJwtRightDto(right));
 		}
 		
 		return rightsList;

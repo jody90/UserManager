@@ -5,21 +5,29 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import de.sortimo.service.model.Right;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import de.sortimo.base.jackson.CustomLocalDateTimeDeserializer;
+import de.sortimo.base.jackson.CustomLocalDateTimeSerializer;
 
 public class SimpleRoleDto {
 	
 	private UUID id;
-	
-	private String created;
-	
-	private String modified;
+
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	private LocalDateTime created;
+
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	private LocalDateTime modified;
 	
 	private String name;
 	
 	private String description;
 	
-	private Set<Right> rights = new HashSet<Right>(0);
+	private Set<SimpleRightDto> rights = new HashSet<SimpleRightDto>(0);
 
 	public UUID getId() {
 		return id;
@@ -29,20 +37,20 @@ public class SimpleRoleDto {
 		this.id = id;
 	}
 
-	public String getCreated() {
+	public LocalDateTime getCreated() {
 		return created;
 	}
 
 	public void setCreated(LocalDateTime localDateTime) {
-		this.created = localDateTime != null ? localDateTime.toString() : "";
+		this.created = localDateTime;
 	}
 
-	public String getModified() {
+	public LocalDateTime getModified() {
 		return modified;
 	}
 
 	public void setModified(LocalDateTime localDateTime) {
-		this.modified = localDateTime != null ? localDateTime.toString() : "";
+		this.modified = localDateTime;
 	}
 
 	public String getName() {
@@ -61,11 +69,11 @@ public class SimpleRoleDto {
 		this.description = description;
 	}
 
-	public Set<Right> getRights() {
+	public Set<SimpleRightDto> getRights() {
 		return rights;
 	}
 
-	public void setRights(Set<Right> rights) {
+	public void setRights(Set<SimpleRightDto> rights) {
 		this.rights = rights;
 	}
 

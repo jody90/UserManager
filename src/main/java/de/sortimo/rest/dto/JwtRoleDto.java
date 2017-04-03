@@ -1,6 +1,8 @@
 package de.sortimo.rest.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,25 +11,23 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sortimo.base.jackson.CustomLocalDateTimeDeserializer;
 import de.sortimo.base.jackson.CustomLocalDateTimeSerializer;
 
-public class SimpleUserDto {
-	
+public class JwtRoleDto {
+
 	private UUID id;
-	
+
 	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
 	private LocalDateTime created;
-	
+
 	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
 	private LocalDateTime modified;
-
-	private String username;
 	
-	private String firstname;
+	private String name;
 	
-	private String lastname;
+	private String description;
 	
-	private String email;
+	private Set<JwtRightDto> rights = new HashSet<JwtRightDto>(0);
 
 	public UUID getId() {
 		return id;
@@ -49,46 +49,38 @@ public class SimpleUserDto {
 		return modified;
 	}
 
-	public void setModified(LocalDateTime modified) {
-		this.modified = modified;
+	public void setModified(LocalDateTime localDateTime) {
+		this.modified = localDateTime;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getName() {
+		return name;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getFirstname() {
-		return firstname;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public String getLastname() {
-		return lastname;
+	public Set<JwtRightDto> getRights() {
+		return rights;
 	}
 
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
+	public void setRights(Set<JwtRightDto> rights) {
+		this.rights = rights;
 	}
 
 	@Override
 	public String toString() {
-		return "SimpleUserDto [id=" + id + ", created=" + created + ", modified=" + modified + ", username=" + username
-				+ ", firstname=" + firstname + ", lastname=" + lastname + ", email=" + email + "]";
+		return "JwtRoleDto [id=" + id + ", created=" + created + ", modified=" + modified + ", name=" + name
+				+ ", description=" + description + ", rights=" + rights + "]";
 	}
 	
 }

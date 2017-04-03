@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.UserConverter;
+import de.sortimo.rest.dto.ExtendedUserDto;
 import de.sortimo.rest.dto.SimpleUserDto;
 import de.sortimo.service.RightService;
 import de.sortimo.service.RoleService;
@@ -84,7 +85,7 @@ public class UserController {
 	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showUser')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
-		Optional<User> tUser = userService.findByUsername(username);
+		Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
 
 		if (!tUser.isPresent()) {
 			LOGGER.info("GET User: Es wurde ein Benutzer [{}] angefragt der nicht in der Datenbank existiert.", username);
@@ -93,10 +94,10 @@ public class UserController {
 		}
 		
 		
-		SimpleUserDto user = userConverter.createPreviewDto(tUser.get());
+		ExtendedUserDto user = userConverter.createFullDto(tUser.get());
 
 		// response zurueck geben
-		return new ResponseEntity<SimpleUserDto>(user, HttpStatus.OK);
+		return new ResponseEntity<ExtendedUserDto>(user, HttpStatus.OK);
 		
 	}
 

@@ -3,22 +3,53 @@ package de.sortimo.rest.converter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.sortimo.rest.dto.ExtendedUserDto;
+import de.sortimo.rest.dto.JwtUserDto;
 import de.sortimo.rest.dto.SimpleUserDto;
 import de.sortimo.service.UserSpringSecurityService;
 import de.sortimo.service.model.User;
-import de.sortimo.service.security.JwtUser;
 
 @Service
 public class UserConverter {
 	
-	@Autowired
-	private UserSpringSecurityService userObjectService;
+	private RightConverter rightConverter = new RightConverter();
 	
-	public JwtUser getJwtUser(User user) {
-		return new JwtUser(user.getUsername(), user.getFirstname(), user.getLastname(), user.getEmail(), user.getPassword(), user.getRights(), user.getRoles(), userObjectService.getAuthorities(user));
+	private RoleConverter roleConverter = new RoleConverter();
+	
+	private UserSpringSecurityService authoritiesService = new UserSpringSecurityService();
+	
+	public JwtUserDto getJwtUser(User user) {
+		
+		JwtUserDto jwtUser = new JwtUserDto();
+		jwtUser.setUsername(user.getUsername());
+		jwtUser.setFirstname(user.getFirstname());
+		jwtUser.setLastname(user.getLastname());
+		jwtUser.setEmail(user.getEmail());
+		jwtUser.setPassword(user.getPassword());
+		jwtUser.setRights(rightConverter.createJwtRightDtoList(user.getRights()));
+		jwtUser.setRoles(roleConverter.createJwtRoleDtoList(user.getRoles()));
+		jwtUser.setAuthorities(authoritiesService.getAuthorities(user));
+		
+		return jwtUser;
+		
+	}
+
+	public ExtendedUserDto createFullDto(User user) {
+		
+		ExtendedUserDto extendedUserDto = new ExtendedUserDto();
+		extendedUserDto.setId(user.getId());
+		extendedUserDto.setCreated(user.getCreateDate());
+		extendedUserDto.setModified(user.getModifyDate());
+		extendedUserDto.setUsername(user.getUsername());
+		extendedUserDto.setFirstname(user.getFirstname());
+		extendedUserDto.setLastname(user.getLastname());
+		extendedUserDto.setEmail(user.getEmail());
+		extendedUserDto.setRights(rightConverter.createDtoList(user.getRights()));
+		extendedUserDto.setRoles(roleConverter.createDtoList(user.getRoles()));
+		
+		return extendedUserDto;
 	}
 	
 	public SimpleUserDto createPreviewDto(User user) {

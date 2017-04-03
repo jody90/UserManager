@@ -27,12 +27,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.UserConverter;
+import de.sortimo.rest.dto.JwtUserDto;
 import de.sortimo.service.model.User;
 import de.sortimo.service.repositories.UserRepository;
 import de.sortimo.service.security.JwtAuthenticationRequest;
 import de.sortimo.service.security.JwtAuthenticationResponse;
 import de.sortimo.service.security.JwtTokenUtil;
-import de.sortimo.service.security.JwtUser;
 import de.sortimo.service.security.MyUserDetailsService;
 
 @Controller
@@ -111,7 +111,7 @@ public class IndexController {
         // Reload password post-security so we can generate token
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
-        JwtUser jwtUser = userConverter.getJwtUser(user);
+        JwtUserDto jwtUser = userConverter.getJwtUser(user);
         
         String token = jwtTokenUtil.generateToken(userDetails, jwtUser);
 

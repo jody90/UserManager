@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import de.sortimo.base.jackson.CustomLocalDateTimeDeserializer;
 import de.sortimo.base.jackson.CustomLocalDateTimeSerializer;
 
-public class SimpleUserDto {
+public class JwtRightDto {
 	
 	private UUID id;
 	
@@ -20,14 +20,10 @@ public class SimpleUserDto {
 	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
 	private LocalDateTime modified;
-
-	private String username;
 	
-	private String firstname;
+	private String name;
 	
-	private String lastname;
-	
-	private String email;
+	private String description;
 
 	public UUID getId() {
 		return id;
@@ -49,46 +45,30 @@ public class SimpleUserDto {
 		return modified;
 	}
 
-	public void setModified(LocalDateTime modified) {
-		this.modified = modified;
+	public void setModified(LocalDateTime localDateTime) {
+		this.modified = localDateTime;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getName() {
+		return name;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getFirstname() {
-		return firstname;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
-	}
-
-	public String getLastname() {
-		return lastname;
-	}
-
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Override
 	public String toString() {
-		return "SimpleUserDto [id=" + id + ", created=" + created + ", modified=" + modified + ", username=" + username
-				+ ", firstname=" + firstname + ", lastname=" + lastname + ", email=" + email + "]";
+		return "JwtRightDto [id=" + id + ", created=" + created + ", modified=" + modified + ", name=" + name
+				+ ", description=" + description + "]";
 	}
-	
+
 }

@@ -12,29 +12,19 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 
 import de.sortimo.base.persistence.AbstractEntity;
 
-//@NamedEntityGraphs({
-//	@NamedEntityGraph(name = "userFull", attributeNodes = {
-//			@NamedAttributeNode(value = "rights"),
-//			@NamedAttributeNode(value = "roles", subgraph = "rightsSubGraph")
-//		},
-//		subgraphs = @NamedSubgraph(name = "rightsSubGraph", attributeNodes = @NamedAttributeNode("rights"))
-//	),
-//	@NamedEntityGraph(name = "userPreview", attributeNodes = {
-//			@NamedAttributeNode(value = "username"),
-//			@NamedAttributeNode(value = "firstname"),
-//			@NamedAttributeNode(value = "lastname"),
-//			@NamedAttributeNode(value = "email")
-//	})
-//})
-@NamedEntityGraph(name = "userPreview", attributeNodes = {
-		@NamedAttributeNode(value = "username"),
-		@NamedAttributeNode(value = "firstname"),
-		@NamedAttributeNode(value = "lastname"),
-		@NamedAttributeNode(value = "email")
+@NamedEntityGraphs({
+	@NamedEntityGraph(name = "userFull", attributeNodes = {
+			@NamedAttributeNode(value = "rights"),
+			@NamedAttributeNode(value = "roles", subgraph = "rightsSubGraph")
+		},
+		subgraphs = @NamedSubgraph(name = "rightsSubGraph", attributeNodes = @NamedAttributeNode("rights"))
+	)
 })
 @Entity
 @Table(name = "users")

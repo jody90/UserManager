@@ -3,8 +3,8 @@ package de.sortimo.rest.controller;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,10 +55,10 @@ public class RightController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		List<SimpleRightDto> rights = rightConverter.createDtoList(rightsCollection.get());
+		Set<SimpleRightDto> rights = rightConverter.createDtoList(rightsCollection.get());
 	
 		// response zurueck geben
-		return new ResponseEntity<List<SimpleRightDto>>(rights, HttpStatus.OK);
+		return new ResponseEntity<Set<SimpleRightDto>>(rights, HttpStatus.OK);
 		
 	}
 

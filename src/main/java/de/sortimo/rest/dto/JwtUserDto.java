@@ -1,13 +1,10 @@
-package de.sortimo.service.security;
+package de.sortimo.rest.dto;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.sortimo.service.model.Right;
-import de.sortimo.service.model.Role;
-
-public class JwtUser {
+public class JwtUserDto {
 	
 	private String username;
 	
@@ -19,15 +16,15 @@ public class JwtUser {
 	
 	private String password;
 	
-	private Set<Right> rights = new HashSet<Right>(0);
+	private Set<JwtRightDto> rights = new HashSet<JwtRightDto>(0);
 	
-	private Set<Role> roles = new HashSet<Role>(0);
+	private Set<JwtRoleDto> roles = new HashSet<JwtRoleDto>(0);
 	
-	private List<Right> authorities;
+	private List<JwtRightDto> authorities;
 	
-	public JwtUser() { }	
+	public JwtUserDto() { }	
 	
-	public JwtUser(String username, String firstname, String lastname, String email, String password, Set<Right> rights, Set<Role> roles, List<Right> authorities) {
+	public JwtUserDto(String username, String firstname, String lastname, String email, String password, Set<JwtRightDto> rights, Set<JwtRoleDto> roles, List<JwtRightDto> authorities) {
 		this.username = username;
 		this.firstname = firstname;
 		this.lastname = lastname;
@@ -70,19 +67,19 @@ public class JwtUser {
 		this.email = email;
 	}
 
-	public Set<Right> getRights() {
+	public Set<JwtRightDto> getRights() {
 		return rights;
 	}
 
-	public void setRights(Set<Right> rights) {
+	public void setRights(Set<JwtRightDto> rights) {
 		this.rights = rights;
 	}
 
-	public Set<Role> getRoles() {
+	public Set<JwtRoleDto> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(Set<JwtRoleDto> roles) {
 		this.roles = roles;
 	}
 
@@ -94,19 +91,19 @@ public class JwtUser {
 		this.password = password;
 	}
 
-	public List<Right> getAuthorities() {
+	public List<JwtRightDto> getAuthorities() {
 		return authorities;
 	}
 
-	public void setAuthorities(List<Right> autohorities) {
+	public void setAuthorities(List<JwtRightDto> autohorities) {
 		this.authorities = autohorities;
 	}
 
 	@Override
 	public String toString() {
-		return "JwtUser [username=" + username + ", firstname=" + firstname + ", lastname=" + lastname + ", email="
+		return "JwtUserDto [username=" + username + ", firstname=" + firstname + ", lastname=" + lastname + ", email="
 				+ email + ", password=" + password + ", rights=" + rights + ", roles=" + roles + ", authorities="
-				+ authorities + ", toString()=" + super.toString() + "]";
+				+ authorities + "]";
 	}
 	
 }

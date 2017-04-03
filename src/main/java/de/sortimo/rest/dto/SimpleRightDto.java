@@ -3,13 +3,23 @@ package de.sortimo.rest.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import de.sortimo.base.jackson.CustomLocalDateTimeDeserializer;
+import de.sortimo.base.jackson.CustomLocalDateTimeSerializer;
+
 public class SimpleRightDto {
 	
 	private UUID id;
 	
-	private String created;
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	private LocalDateTime created;
 	
-	private String modified;
+	@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+	private LocalDateTime modified;
 	
 	private String name;
 	
@@ -23,20 +33,20 @@ public class SimpleRightDto {
 		this.id = id;
 	}
 
-	public String getCreated() {
+	public LocalDateTime getCreated() {
 		return created;
 	}
 
 	public void setCreated(LocalDateTime localDateTime) {
-		this.created = localDateTime != null ? localDateTime.toString() : "";
+		this.created = localDateTime;
 	}
 
-	public String getModified() {
+	public LocalDateTime getModified() {
 		return modified;
 	}
 
 	public void setModified(LocalDateTime localDateTime) {
-		this.modified = localDateTime != null ? localDateTime.toString() : "";
+		this.modified = localDateTime;
 	}
 
 	public String getName() {

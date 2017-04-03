@@ -17,8 +17,6 @@ import de.sortimo.base.aspects.Timelog;
 import de.sortimo.service.model.Right;
 import de.sortimo.service.model.Role;
 import de.sortimo.service.model.User;
-import de.sortimo.service.repositories.RightRepository;
-import de.sortimo.service.repositories.RoleRepository;
 import de.sortimo.service.repositories.UserRepository;
 
 @Service
@@ -53,6 +51,12 @@ public class UserService {
 		
 		return finalUser;
 
+	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
+	public Optional<User> findByUsernameWithGraphInitialized(String username) {
+		return userRepo.findByUsernameWithGraphInitialized(username);
 	}
 	
 	@Timelog

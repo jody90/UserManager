@@ -3,8 +3,8 @@ package de.sortimo.rest.controller;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -60,10 +60,10 @@ public class RoleController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		List<SimpleRoleDto> roles = roleConverter.createDtoList(rolesCollection.get());
+		Set<SimpleRoleDto> roles = roleConverter.createDtoList(rolesCollection.get());
 	
 		// response zurueck geben
-		return new ResponseEntity<List<SimpleRoleDto>>(roles, HttpStatus.OK);
+		return new ResponseEntity<Set<SimpleRoleDto>>(roles, HttpStatus.OK);
 		
 	}
 	

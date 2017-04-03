@@ -13,21 +13,14 @@ import de.sortimo.service.model.User;
 
 public interface UserRepository extends CrudRepository<User, Long> {
 	
-//	Iterable<User> findAll();
-	
-	@EntityGraph(value = "userFull" , type=EntityGraphType.FETCH)
-	@Query(value="select u from User u")
-	Iterable<User> findAllWithGraphInitialized();
+	@EntityGraph(value = "userFull" , type = EntityGraphType.FETCH)
+	@Query(value="select u from User u WHERE u.username = :username")
+	Optional<User> findByUsernameWithGraphInitialized(@Param("username") String username);
 	
 	@Query(value="select u from User u")
-	@EntityGraph(value = "userPreview" , type=EntityGraphType.FETCH)
 	Optional<Iterable<User>> findAllWithoutGraph();
 	
 	Optional<User> findByUsername(String username);
-	
-	@EntityGraph(value = "userFull" , type=EntityGraphType.FETCH)
-	@Query(value="select u from User u where u.username=:nameFromUser")
-	Optional<User> findByUsernameWithGraphInitialized(@Param("nameFromUser") String username);
 
 	Optional<User> findById(UUID pUser);
 

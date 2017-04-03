@@ -6,24 +6,28 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import de.sortimo.base.aspects.Timelog;
+import de.sortimo.rest.converter.RightConverter;
+import de.sortimo.rest.dto.JwtRightDto;
 import de.sortimo.service.model.Right;
 import de.sortimo.service.model.Role;
 import de.sortimo.service.model.User;
 
 @Service
 public class UserSpringSecurityService {
+	
+	private RightConverter rightConverter = new RightConverter();
 
 	/*
-	 * Generiert eine Liste alles Authorities
+	 * Generiert eine Liste aller Authorities
 	 */
 	@Timelog
-	public List<Right> getAuthorities(User user) {
+	public List<JwtRightDto> getAuthorities(User user) {
 		
-		List<Right> allRights = new ArrayList<>();
+		List<JwtRightDto> allRights = new ArrayList<>();
 		
 		if (user.getRights() != null) {
 			for (Right right : user.getRights()) {
-				allRights.add(right);
+				allRights.add(rightConverter.createJwtRightDto(right));
 			}
 		}
 		
@@ -32,7 +36,7 @@ public class UserSpringSecurityService {
 				if (role.getRights() != null) {
 					for (Right right : role.getRights()) {
 						if (!allRights.contains(right)) {
-							allRights.add(right);
+							allRights.add(rightConverter.createJwtRightDto(right));
 						}
 					}
 				}
