@@ -174,9 +174,11 @@ public class RightController {
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
 	    URI locationUri = URI.create(hostUri + "/api/right/" + right.get().getName());
 	    headers.setLocation(locationUri);
+	    
+	    SimpleRightDto simpleRightDto = rightConverter.createDto(right.get());
 
 	    // response zurueck geben
-	    return new ResponseEntity<Right>(right.get(), headers, HttpStatus.OK);
+	    return new ResponseEntity<SimpleRightDto>(simpleRightDto, headers, HttpStatus.OK);
 
 	}
 
