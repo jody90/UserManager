@@ -201,24 +201,24 @@ public class RoleController {
 		
 		Optional<Right> right = rightService.findByName(rightName);
 		
-		// pruefen ob Recht vorhanden
+		// pruefen ob Rolle vorhanden ist
 		if (!role.isPresent()) {
 			LOGGER.info("PUT Role Right: Rolle {} existiert nicht.", roleName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists. Create it first.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		// pruefen ob Rolle vorhanden ist
+		// pruefen ob Recht vorhanden
 		if (!right.isPresent()) {
 			LOGGER.info("PUT Role Right: Recht {} existiert nicht.", rightName);
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Recht [" + rightName + "] not exists. Create it first.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
-		Optional<Role> tRole = roleService.roleAddRight(roleName, right.get());
+		Role tRole = roleService.roleAddRight(roleName, rightName);
 		
 
-		SimpleRoleDto responseRole = roleConverter.createDto(tRole.get());
+		SimpleRoleDto responseRole = roleConverter.createDto(tRole);
 		
 	    // response zurueck geben
 	    return new ResponseEntity<SimpleRoleDto>(responseRole, HttpStatus.OK);
@@ -256,9 +256,9 @@ public class RoleController {
 		}
 
 		// Recht von Rolle entfernen
-		Optional<Role> tRole = roleService.removeRightFromRole(roleName, right.get());
+		Role tRole = roleService.removeRightFromRole(roleName, rightName);
 		
-		SimpleRoleDto responseRole = roleConverter.createDto(tRole.get());
+		SimpleRoleDto responseRole = roleConverter.createDto(tRole);
 
 	    // response zurueck geben
 	    return new ResponseEntity<SimpleRoleDto>(responseRole, HttpStatus.OK);

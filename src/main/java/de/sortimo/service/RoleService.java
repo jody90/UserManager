@@ -23,6 +23,9 @@ public class RoleService {
 	
 	@Autowired
 	private RoleRepository roleRepo;
+	
+	@Autowired
+	private RightService rightService;
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -76,19 +79,21 @@ public class RoleService {
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<Role> roleAddRight(String roleName, Right right) {
-		Optional<Role> tRole = roleRepo.findByName(roleName);
-		tRole.get().getRights().add(right);
-		LOGGER.info("Rolle {} wurde Recht {} hinzugefügt.", roleName, right.getName());
+	public Role roleAddRight(String roleName, String rightName) {
+		Role tRole = roleRepo.findByName(roleName).get();
+		Right tRight = rightService.findByName(rightName).get();
+		tRole.getRights().add(tRight);
+		LOGGER.info("Rolle {} wurde Recht {} hinzugefügt.", roleName, rightName);
 		return tRole;
 	}
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<Role> removeRightFromRole(String roleName, Right right) {
-		 Optional<Role> tRole = roleRepo.findByName(roleName);
-		 tRole.get().getRights().remove(right);
-		 LOGGER.info("Recht {} wurde von Rolle {} entfernt.", right.getName(), roleName);
+	public Role removeRightFromRole(String roleName, String rightName) {
+		 Role tRole = roleRepo.findByName(roleName).get();
+		 Right tRight = rightService.findByName(roleName).get();
+		 tRole.getRights().remove(tRight);
+		 LOGGER.info("Recht {} wurde von Rolle {} entfernt.", rightName, roleName);
 		 return tRole;
 	}
 

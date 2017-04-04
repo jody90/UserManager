@@ -238,7 +238,7 @@ public class UserController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
-		User updatedUser = userService.userAddRight(username, tRight.get()).get();
+		User updatedUser = userService.userAddRight(username, rightName).get();
 		
 		SimpleUserDto responseUser = userConverter.createPreviewDto(updatedUser);
 		
@@ -289,7 +289,7 @@ public class UserController {
 		}
 
 		// recht von benutzer entfernen
-		User updatedUser = userService.removeRightFromUser(username, currentRight).get();
+		User updatedUser = userService.removeRightFromUser(username, rightName).get();
 		
 		SimpleUserDto returnUser = userConverter.createPreviewDto(updatedUser);
 
@@ -297,10 +297,6 @@ public class UserController {
 	    return new ResponseEntity<SimpleUserDto>(returnUser, HttpStatus.OK);
 
 	}
-	
-	
-	
-	
 	
 	/**
 	 * Fuegt einem User eine Rolle hinzu
@@ -333,7 +329,7 @@ public class UserController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 			
-		User updatedUser = userService.userAddRole(username, tRole.get()).get();
+		User updatedUser = userService.userAddRole(username, roleName).get();
 		
 		SimpleUserDto responseUser = userConverter.createPreviewDto(updatedUser);
 		

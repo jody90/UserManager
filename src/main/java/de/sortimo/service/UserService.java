@@ -111,38 +111,42 @@ public class UserService {
 	
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<User> userAddRight(String username, Right right) {
+	public Optional<User> userAddRight(String username, String rightName) {
 		Optional<User> tUser = userRepo.findByUsername(username);
-		tUser.get().getRights().add(right);
-		LOGGER.info("User [{}] wurde Recht [{}] hinzugefügt.", username, right.getName());
+		Right tRight = rightService.findByName(rightName).get();
+		
+		tUser.get().getRights().add(tRight);
+		LOGGER.info("User [{}] wurde Recht [{}] hinzugefügt.", username, rightName);
 		return tUser;
 	}
 	
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<User> removeRightFromUser(String username, Right right) {
+	public Optional<User> removeRightFromUser(String username, String rightName) {
 		 Optional<User> tUser = userRepo.findByUsername(username);
-		 tUser.get().getRights().remove(right);
-		 LOGGER.info("Recht [{}] wurde von User [{}] entfernt.", right.getName(), username);
+		 Right tRight = rightService.findByName(rightName).get();
+		 tUser.get().getRights().remove(tRight);
+		 LOGGER.info("Recht [{}] wurde von User [{}] entfernt.", rightName, username);
 		 return tUser;
 	}
 	
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<User> userAddRole(String username, Role role) {
+	public Optional<User> userAddRole(String username, String roleName) {
 		Optional<User> tUser = userRepo.findByUsername(username);
-		Role tRole = roleService.findByName(role.getName()).get();
+		Role tRole = roleService.findByName(roleName).get();
 		tUser.get().getRoles().add(tRole);
-		LOGGER.info("User [{}] wurde Rolle [{}] hinzugefügt.", username, role.getName());
+		LOGGER.info("User [{}] wurde Rolle [{}] hinzugefügt.", username, roleName);
 		return tUser;
 	}
 	
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<User> removeRoleFromUser(String username, Role role) {
+	public Optional<User> removeRoleFromUser(String username, String roleName) {
 		 Optional<User> tUser = userRepo.findByUsername(username);
-		 tUser.get().getRoles().remove(role);
-		 LOGGER.info("Rolle [{}] wurde von User [{}] entfernt.", role.getName(), username);
+		 Role tRole = roleService.findByName(roleName).get();
+		 tUser.get().getRoles().remove(tRole);
+		 LOGGER.info("Rolle [{}] wurde von User [{}] entfernt.", roleName, username);
 		 return tUser;
 	}
 	
