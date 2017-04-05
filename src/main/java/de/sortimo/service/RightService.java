@@ -68,9 +68,11 @@ public class RightService {
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void save(Right right) {
-		rightRepo.save(right);
-		LOGGER.info("Recht {} gespeichert.", right.getName());
+	public Right save(String name, String description) {
+		Right finalRight = new Right(name.toLowerCase(), description);
+		rightRepo.save(finalRight);
+		LOGGER.info("Recht {} gespeichert.", name);
+		return finalRight;
 	}
 
 }

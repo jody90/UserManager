@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.RoleConverter;
+import de.sortimo.rest.dto.ExtendedRoleDto;
 import de.sortimo.rest.dto.SimpleRoleDto;
 import de.sortimo.service.RightService;
 import de.sortimo.service.RoleService;
@@ -68,9 +69,9 @@ public class RoleController {
 	}
 	
 	/**
-	 * Fuegt ein neues Recht in die Datenbank ein
+	 * Fuegt eine neue Rolle in die Datenbank ein
 	 * 
-	 * @param right
+	 * @param tRole
 	 * @param request
 	 * @return
 	 * @throws MalformedURLException
@@ -86,19 +87,19 @@ public class RoleController {
 		}	
 		
 		// Recht speichern
-		roleService.save(tRole);
-		
-		SimpleRoleDto role = roleConverter.createDto(tRole);
+		Role savedRole = roleService.save(tRole.getName(), tRole.getDescription());
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/role/" + role.getName());
+	    URI locationUri = URI.create(hostUri + "/api/role/" + savedRole.getName());
 	    headers.setLocation(locationUri);
 
+	    ExtendedRoleDto role = roleConverter.createFullRoleDto(savedRole);
+	    
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleRoleDto>(role, headers, HttpStatus.CREATED);
+	    return new ResponseEntity<ExtendedRoleDto>(role, headers, HttpStatus.CREATED);
 
 	}
 	
@@ -120,10 +121,10 @@ public class RoleController {
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
-		SimpleRoleDto role = roleConverter.createDto(tRole.get());
+		ExtendedRoleDto role = roleConverter.createFullRoleDto(tRole.get());
 		
 		// response zurueck geben
-		return new ResponseEntity<SimpleRoleDto>(role, HttpStatus.OK);
+		return new ResponseEntity<ExtendedRoleDto>(role, HttpStatus.OK);
 	}
 
 	/**
@@ -218,10 +219,10 @@ public class RoleController {
 		Role tRole = roleService.roleAddRight(roleName, rightName);
 		
 
-		SimpleRoleDto responseRole = roleConverter.createDto(tRole);
+		ExtendedRoleDto responseRole = roleConverter.createFullRoleDto(tRole);
 		
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleRoleDto>(responseRole, HttpStatus.OK);
+	    return new ResponseEntity<ExtendedRoleDto>(responseRole, HttpStatus.OK);
 
 	}
 	
@@ -234,8 +235,8 @@ public class RoleController {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	@RequestMapping(value="/{roleName}/role/{rightName}", method = RequestMethod.DELETE, produces="application/json")
-	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
+	@RequestMapping(value="/{roleName}/right/{rightName}", method = RequestMethod.DELETE, produces="application/json")
+	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String roleName, @PathVariable String rightName, HttpServletRequest request) throws MalformedURLException {
 
 		Optional<Role> role = roleService.findByName(roleName);
 		
@@ -258,10 +259,10 @@ public class RoleController {
 		// Recht von Rolle entfernen
 		Role tRole = roleService.removeRightFromRole(roleName, rightName);
 		
-		SimpleRoleDto responseRole = roleConverter.createDto(tRole);
+		ExtendedRoleDto responseRole = roleConverter.createFullRoleDto(tRole);
 
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleRoleDto>(responseRole, HttpStatus.OK);
+	    return new ResponseEntity<ExtendedRoleDto>(responseRole, HttpStatus.OK);
 
 	}
 	

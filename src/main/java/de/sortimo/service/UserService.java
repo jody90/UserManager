@@ -43,7 +43,7 @@ public class UserService {
 	@Timelog
 	public User save(String username, String password, String firstname, String lastname, String email) {
 		
-		User finalUser = new User(username, new BCryptPasswordEncoder().encode(password), firstname, lastname, email);
+		User finalUser = new User(username.toLowerCase(), new BCryptPasswordEncoder().encode(password), firstname, lastname, email);
 
 		userRepo.save(finalUser);
 		
@@ -169,9 +169,8 @@ public class UserService {
 			if (!tRight.isPresent()) {
 				
 				LOGGER.info("Right: superRight not Found! Create it.");
-				
-				right = new Right("superRight", "Wer dieses Recht hat, ist der König der Welt.");
-				rightService.save(right);
+
+				right = rightService.save("superRight", "Wer dieses Recht hat, ist der König der Welt.");
 			 }
 
 			Optional<Role> tRole = roleService.findByName("superAdmin");
@@ -182,8 +181,7 @@ public class UserService {
 				
 				LOGGER.info("User: superAdmin not Found! Create it.");				
 				
-				role = new Role("superAdmin", "Gottgleiches Wesen");
-				roleService.save(role);
+				role = roleService.save("superAdmin", "Gottgleiches Wesen");
 				role.getRights().add(right);
 			 }			
 			

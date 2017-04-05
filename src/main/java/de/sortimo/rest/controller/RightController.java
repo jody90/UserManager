@@ -81,17 +81,17 @@ public class RightController {
 		}	
 		
 		// Recht speichern
-		rightService.save(tRight);
+		Right savedRight = rightService.save(tRight.getName(), tRight.getDescription());
 		
-		SimpleRightDto right = rightConverter.createDto(tRight);
-
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
 	    HttpHeaders headers = new HttpHeaders();
 	    String hostUri = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-	    URI locationUri = URI.create(hostUri + "/api/right/" + right.getName());
+	    URI locationUri = URI.create(hostUri + "/api/right/" + savedRight.getName());
 	    headers.setLocation(locationUri);
 
+	    SimpleRightDto right = rightConverter.createDto(savedRight);
+	    
 	    // response zurueck geben
 	    return new ResponseEntity<SimpleRightDto>(right, headers, HttpStatus.CREATED);
 

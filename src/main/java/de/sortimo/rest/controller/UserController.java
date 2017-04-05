@@ -132,10 +132,10 @@ public class UserController {
 	    URI locationUri = URI.create(hostUri + "/api/user/" + savedUser.getUsername());
 	    headers.setLocation(locationUri);
 	    
-	    SimpleUserDto user = userConverter.createPreviewDto(savedUser);
+	    ExtendedUserDto user = userConverter.createFullDto(savedUser);
 
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleUserDto>(user, headers, HttpStatus.CREATED);
+	    return new ResponseEntity<ExtendedUserDto>(user, headers, HttpStatus.CREATED);
 
 	}
 	
@@ -240,10 +240,10 @@ public class UserController {
 		
 		User updatedUser = userService.userAddRight(username, rightName).get();
 		
-		SimpleUserDto responseUser = userConverter.createPreviewDto(updatedUser);
+		ExtendedUserDto responseUser = userConverter.createFullDto(updatedUser);
 		
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleUserDto>(responseUser, HttpStatus.OK);
+	    return new ResponseEntity<ExtendedUserDto>(responseUser, HttpStatus.OK);
 
 	}
 	
@@ -291,10 +291,10 @@ public class UserController {
 		// recht von benutzer entfernen
 		User updatedUser = userService.removeRightFromUser(username, rightName).get();
 		
-		SimpleUserDto returnUser = userConverter.createPreviewDto(updatedUser);
+		ExtendedUserDto returnUser = userConverter.createFullDto(updatedUser);
 
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleUserDto>(returnUser, HttpStatus.OK);
+	    return new ResponseEntity<ExtendedUserDto>(returnUser, HttpStatus.OK);
 
 	}
 	
@@ -331,10 +331,10 @@ public class UserController {
 			
 		User updatedUser = userService.userAddRole(username, roleName).get();
 		
-		SimpleUserDto responseUser = userConverter.createPreviewDto(updatedUser);
+		ExtendedUserDto responseUser = userConverter.createFullDto(updatedUser);
 		
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleUserDto>(responseUser, HttpStatus.OK);
+	    return new ResponseEntity<ExtendedUserDto>(responseUser, HttpStatus.OK);
 
 	}
 	
@@ -365,7 +365,7 @@ public class UserController {
 		// pruefen ob recht vorhanden
 		if (!tRole.isPresent()) {
 			LOGGER.info("DELETE User Role: Es wurde verucht einem Benutzer [{}] eine Rolle [{}] zu entziehen das nicht existiert.", username, roleName);
-			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Right [" + roleName + "] not exists.");
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "Role [" + roleName + "] not exists.");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 		
@@ -373,19 +373,19 @@ public class UserController {
 		Role currentRole = tRole.get();
 		
 		// prufen ob user das recht besitzt
-		if (!currentUser.getRights().contains(currentRole)) {
+		if (!currentUser.getRoles().contains(currentRole)) {
 			LOGGER.info("DELETE User Role: Es wurde verucht einem Benutzer [{}] eine Rolle [{}] zu entziehen das er garnicht besitzt.", username, roleName);
 			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "User [" + username + "] does not have the role [" + roleName + "]. Could not be deleted!");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
 
 		// recht von benutzer entfernen
-		User updatedUser = userService.removeRoleFromUser(username, currentRole).get();
+		User updatedUser = userService.removeRoleFromUser(username, roleName).get();
 		
-		SimpleUserDto returnUser = userConverter.createPreviewDto(updatedUser);
+		ExtendedUserDto returnUser = userConverter.createFullDto(updatedUser);
 
 	    // response zurueck geben
-	    return new ResponseEntity<SimpleUserDto>(returnUser, HttpStatus.OK);
+	    return new ResponseEntity<ExtendedUserDto>(returnUser, HttpStatus.OK);
 
 	}
 	

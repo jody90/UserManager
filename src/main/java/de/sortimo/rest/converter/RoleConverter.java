@@ -3,6 +3,7 @@ package de.sortimo.rest.converter;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.sortimo.rest.dto.ExtendedRoleDto;
 import de.sortimo.rest.dto.JwtRoleDto;
 import de.sortimo.rest.dto.SimpleRoleDto;
 import de.sortimo.service.model.Role;
@@ -10,8 +11,21 @@ import de.sortimo.service.model.Role;
 public class RoleConverter {
 
 	private RightConverter rightConverter = new RightConverter();
+
+	public ExtendedRoleDto createFullRoleDto(Role role) {
+		
+		ExtendedRoleDto extendedRoleDto = new ExtendedRoleDto();
+		extendedRoleDto.setId(role.getId());
+		extendedRoleDto.setCreated(role.getCreateDate());
+		extendedRoleDto.setModified(role.getModifyDate());
+		extendedRoleDto.setName(role.getName());
+		extendedRoleDto.setDescription(role.getDescription());
+		extendedRoleDto.setRights(rightConverter.createDtoList(role.getRights()));
+		
+		return extendedRoleDto;
+	}
 	
-	public SimpleRoleDto createDto(Role role) {
+	public SimpleRoleDto createPreviewDto(Role role) {
 		
 		SimpleRoleDto simpleRoleDto = new SimpleRoleDto();
 		simpleRoleDto.setId(role.getId());
@@ -19,7 +33,6 @@ public class RoleConverter {
 		simpleRoleDto.setModified(role.getModifyDate());
 		simpleRoleDto.setName(role.getName());
 		simpleRoleDto.setDescription(role.getDescription());
-		simpleRoleDto.setRights(rightConverter.createDtoList(role.getRights()));
 		
 		return simpleRoleDto;
 	}
@@ -42,7 +55,7 @@ public class RoleConverter {
 		Set<SimpleRoleDto> rolesList = new HashSet<>();
 		
 		for (Role role : tRoles) {
-			rolesList.add(this.createDto(role));
+			rolesList.add(this.createPreviewDto(role));
 		}
 		
 		return rolesList;

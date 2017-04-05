@@ -72,9 +72,11 @@ public class RoleService {
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public void save(Role role) {
-		roleRepo.save(role);
-		LOGGER.info("Rolle {} gespeichert.", role.getName());
+	public Role save(String name, String description) {
+		Role finalRole = new Role(name.toLowerCase(), description);
+		roleRepo.save(finalRole);
+		LOGGER.info("Rolle {} gespeichert.", name);
+		return finalRole;
 	}
 
 	@Timelog
@@ -91,7 +93,7 @@ public class RoleService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Role removeRightFromRole(String roleName, String rightName) {
 		 Role tRole = roleRepo.findByName(roleName).get();
-		 Right tRight = rightService.findByName(roleName).get();
+		 Right tRight = rightService.findByName(rightName).get();
 		 tRole.getRights().remove(tRight);
 		 LOGGER.info("Recht {} wurde von Rolle {} entfernt.", rightName, roleName);
 		 return tRole;
