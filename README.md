@@ -48,17 +48,17 @@ User following steps to create a productive artifact.
 
 ## Create Artifact
 
-	mvn release:prepare
-	mvn release:perform -Darguments="-Dmaven.deploy.skip=true"
+	mvn release:prepare -DignoreSnapshots=true
+	mvn release:perform -Darguments="-Dmaven.deploy.skip=true" 
 
 ### Further documentation
 For test purpose:
 
-	mvn release:prepare -DdryRun=true
+	mvn release:prepare -DdryRun=true -DignoreSnapshots=true
 
 To prepare the release
 
-	mvn release:prepare
+	mvn release:prepare -DignoreSnapshots=true
 	
 To create the release
 

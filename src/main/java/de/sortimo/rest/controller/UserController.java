@@ -57,6 +57,7 @@ public class UserController {
 	 * @return Collection von User Objekten
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_showUsers')")
 	public @ResponseBody ResponseEntity<?> getAllUsers() {
 		
 		Optional<Iterable<User>> usersCollection = userService.findAllWithoutGraph();
@@ -82,7 +83,7 @@ public class UserController {
 	 * @return User Object
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_showUser')")
+	@PreAuthorize("hasAuthority('userManager_showUser')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
 		Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
@@ -110,7 +111,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_createUser')")
+	@PreAuthorize("hasAuthority('userManager_createUser')")
 	public @ResponseBody ResponseEntity<?> register(@RequestBody User pUser, HttpServletRequest request) throws MalformedURLException {
 		
 		Optional<User> tUser = userService.findByUsername(pUser.getUsername());
@@ -146,7 +147,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_deleteUser')")
+	@PreAuthorize("hasAuthority('userManager_deleteUser')")
 	public @ResponseBody ResponseEntity<?> deleteUser(@PathVariable String username) {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -186,7 +187,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_updateUser')")
+	@PreAuthorize("hasAuthority('userManager_updateUser')")
 	public @ResponseBody ResponseEntity<?> update(@RequestBody User pUser, @PathVariable String username,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -217,7 +218,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/right/{rightName}", method = RequestMethod.PUT, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userAddRight')")
+	@PreAuthorize("hasAuthority('userManager_userAddRight')")
 	public @ResponseBody ResponseEntity<?> userAddRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -257,7 +258,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/right/{rightName}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userRemoveRight')")
+	@PreAuthorize("hasAuthority('userManager_userRemoveRight')")
 	public @ResponseBody ResponseEntity<?> userRemoveRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -308,7 +309,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.PUT, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userAddRole')")
+	@PreAuthorize("hasAuthority('userManager_userAddRole')")
 	public @ResponseBody ResponseEntity<?> userAddRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -348,7 +349,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAnyAuthority('superRight', 'userManager_userRemoveRight')")
+	@PreAuthorize("hasAuthority('userManager_userRemoveRole')")
 	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);

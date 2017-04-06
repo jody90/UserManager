@@ -98,5 +98,17 @@ public class RoleService {
 		 LOGGER.info("Recht {} wurde von Rolle {} entfernt.", rightName, roleName);
 		 return tRole;
 	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void superAdminAddRight(String rightName) {
+
+		final String SUPERADMIN = "superAdmin";
+		
+		Role tRole = roleRepo.findByName(SUPERADMIN).get();
+		Right tRight = rightService.findByName(rightName).get();
+		tRole.getRights().add(tRight);
+		LOGGER.info("Rolle {} wurde Recht {} hinzugefügt.", SUPERADMIN, rightName);
+	}
 
 }

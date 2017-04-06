@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +45,7 @@ public class RightController {
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_showRights')")
 	public @ResponseBody ResponseEntity<?> getAllRights() {
 		
 		Optional<Iterable<Right>> rightsCollection = rightService.findAll();
@@ -71,6 +73,7 @@ public class RightController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_addRight')")
 	public @ResponseBody ResponseEntity<?> addRight(@RequestBody Right tRight, HttpServletRequest request) throws MalformedURLException {
 
 		// pruefen ob Recht bereits vorhanden ist
@@ -104,6 +107,7 @@ public class RightController {
 	 * @return Right Object
 	 */
 	@RequestMapping(value="/{rightName}", method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_showRight')")
 	public @ResponseBody ResponseEntity<?> getRight(@PathVariable String rightName) {
 
 		Optional<Right> tRight = rightService.findByName(rightName);
@@ -128,6 +132,7 @@ public class RightController {
 	 * @return
 	 */
 	@RequestMapping(value="/{rightName}", method = RequestMethod.DELETE, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_deleteRight')")
 	public @ResponseBody ResponseEntity<?> deleteRight(@PathVariable String rightName) {
 
 		Optional<Right> tRight = rightService.findByName(rightName);
@@ -157,6 +162,7 @@ public class RightController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{rightName}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_updateRight')")
 	public @ResponseBody ResponseEntity<?> updateRight(@RequestBody Right tRight, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 		
 		// Recht updaten

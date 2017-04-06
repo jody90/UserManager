@@ -1,5 +1,7 @@
 package de.sortimo.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -160,31 +162,51 @@ public class UserService {
 
 		if (!dbUser.isPresent()) {
 			
-			LOGGER.info("User: superadmin not Found! Create it.");
+			LOGGER.info("User: {} not Found! Create it.", SUPERADMIN);
 			
-			Optional<Right> tRight = rightService.findByName("superRight");
+			List<Right> tRights = new ArrayList<>();
+			tRights.add(new Right("userManager_showUsers", "Darf alle User anzeigen"));
+			tRights.add(new Right("userManager_showUser", "Darf einen User anzeigen"));
+			tRights.add(new Right("userManager_createUser", "Darf einen User anlegen"));
+			tRights.add(new Right("userManager_deleteUser", "Darf einen User löschen"));
+			tRights.add(new Right("userManager_updateUser", "Darf einen User aktualisieren"));
+			tRights.add(new Right("userManager_userAddRight", "Darf einem User ein Recht zuweisen"));
+			tRights.add(new Right("userManager_userRemoveRight", "Darf einem User ein Recht entziehen"));
+			tRights.add(new Right("userManager_userAddRole", "Darf einem User eine Rolle zuweisen"));
+			tRights.add(new Right("userManager_userRemoveRole", "Darf einem User eine Rolle entziehen"));
+			tRights.add(new Right("userManager_showRoles", "Darf alle Rollen anzeigen"));
+			tRights.add(new Right("userManager_showRole", "Darf eine Rolle anzeigen"));
+			tRights.add(new Right("userManager_showRole", "Darf eine Rolle anzeigen"));
+			tRights.add(new Right("userManager_addRole", "Darf eine Rolle anlegen"));
+			tRights.add(new Right("userManager_deleteRole", "Darf eine Rolle löschen"));
+			tRights.add(new Right("userManager_updateRole", "Darf eine Rolle aktualisieren"));
+			tRights.add(new Right("userManager_roleAddRight", "Darf einer Rolle ein Recht zuweisen"));
+			tRights.add(new Right("userManager_roleRemoveRight", "Darf einer Rolle ein Recht entziehen"));
+			tRights.add(new Right("userManager_showRights", "Darf alle Rechte anzeigen"));
+			tRights.add(new Right("userManager_showRight", "Darf ein Recht anzeigen"));
+			tRights.add(new Right("userManager_showRight", "Darf ein Recht anzeigen"));
+			tRights.add(new Right("userManager_addRight", "Darf ein Recht anlegen"));
+			tRights.add(new Right("userManager_deleteRight", "Darf ein Recht löschen"));
+			tRights.add(new Right("userManager_updateRight", "Darf ein Recht aktualisieren"));
 			
-			Right right = null;
-			
-			if (!tRight.isPresent()) {
-				
-				LOGGER.info("Right: superRight not Found! Create it.");
-
-				right = rightService.save("superRight", "Wer dieses Recht hat, ist der König der Welt.");
-			 }
-
 			Optional<Role> tRole = roleService.findByName("superAdmin");
 			
 			Role role = null;
 			
 			if (!tRole.isPresent()) {
 				
-				LOGGER.info("User: superAdmin not Found! Create it.");				
+				LOGGER.info("Role: superAdmin not Found! Create it.");				
 				
 				role = roleService.save("superAdmin", "Gottgleiches Wesen");
-				role.getRights().add(right);
-			 }			
+			}	
 			
+			for (Right right : tRights) {
+				if (!rightService.findByName(right.getName()).isPresent()) {
+					LOGGER.info("Initial Right creation: Right [{}] not Found! Create it.", right.getName());
+					rightService.save(right.getName(), right.getDescription());
+				}
+			}
+
 			User user = new User(SUPERADMIN, "$2a$10$o.HCljm8GNpG2cA.bFuhkuppOmZB9OcPyILs5FIthhuB.vEgSFzJK", "super", "admin", "superadmin@sortimo.de");
 			userRepo.save(user);
 			user.getRoles().add(role);

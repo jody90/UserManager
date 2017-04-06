@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +51,7 @@ public class RoleController {
 	 * @return Collection von Role Objekten
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_showRoles')")
 	public @ResponseBody ResponseEntity<?> getAllRoles() {
 		
 		Optional<Iterable<Role>> rolesCollection = roleService.findAll();
@@ -77,6 +79,7 @@ public class RoleController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_addRole')")
 	public @ResponseBody ResponseEntity<?> addRole(@RequestBody Role tRole, HttpServletRequest request) throws MalformedURLException {
 
 		// pruefen ob Recht bereits vorhanden ist
@@ -110,6 +113,7 @@ public class RoleController {
 	 * @return Role Object
 	 */
 	@RequestMapping(value="/{roleName}", method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_showRole')")
 	public @ResponseBody ResponseEntity<?> getRole(@PathVariable String roleName) {
 
 		Optional<Role> tRole = roleService.findByName(roleName);
@@ -134,6 +138,7 @@ public class RoleController {
 	 * @return
 	 */
 	@RequestMapping(value="/{roleName}", method = RequestMethod.DELETE, produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_deleteRole')")
 	public @ResponseBody ResponseEntity<?> deleteRole(@PathVariable String roleName) {
 
 		Optional<Role> tRole = roleService.findByName(roleName);
@@ -163,6 +168,7 @@ public class RoleController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{roleName}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
+	@PreAuthorize("hasAuthority('userManager_updateRole')")
 	public @ResponseBody ResponseEntity<?> updateRole(@RequestBody Role tRole, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 		
 		// Rolle updaten
@@ -196,7 +202,8 @@ public class RoleController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{roleName}/right/{rightName}", method = RequestMethod.PUT , produces="application/json")
-	public @ResponseBody ResponseEntity<?> userAddRole(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
+	@PreAuthorize("hasAuthority('userManager_roleAddRight')")
+	public @ResponseBody ResponseEntity<?> roleAddRight(@PathVariable String roleName, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<Role> role = roleService.findByName(roleName);
 		
@@ -236,7 +243,8 @@ public class RoleController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{roleName}/right/{rightName}", method = RequestMethod.DELETE, produces="application/json")
-	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String roleName, @PathVariable String rightName, HttpServletRequest request) throws MalformedURLException {
+	@PreAuthorize("hasAuthority('userManager_roleRemoveRight')")
+	public @ResponseBody ResponseEntity<?> roleRemoveRight(@PathVariable String roleName, @PathVariable String rightName, HttpServletRequest request) throws MalformedURLException {
 
 		Optional<Role> role = roleService.findByName(roleName);
 		

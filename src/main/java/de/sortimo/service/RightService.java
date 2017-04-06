@@ -21,6 +21,9 @@ public class RightService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RightService.class);
 	
 	@Autowired
+	private RoleService roleService; 
+	
+	@Autowired
 	private RightRepository rightRepo;
 
 	@Timelog
@@ -69,9 +72,11 @@ public class RightService {
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Right save(String name, String description) {
-		Right finalRight = new Right(name.toLowerCase(), description);
+		String tRightName = name.toLowerCase();
+		Right finalRight = new Right(tRightName, description);
 		rightRepo.save(finalRight);
-		LOGGER.info("Recht {} gespeichert.", name);
+		roleService.superAdminAddRight(tRightName);
+		LOGGER.info("Recht {} gespeichert.", tRightName);
 		return finalRight;
 	}
 
