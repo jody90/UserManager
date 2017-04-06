@@ -41,8 +41,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     	String authToken = request.getHeader(this.tokenHeader);
     	JwtUserDto user = null;
     	
-    	LOG.info("authToken: {}", authToken);
-    	
     	if (authToken != null) {
     		user = jwtTokenUtil.getUserFromToken(authToken);
     	}
