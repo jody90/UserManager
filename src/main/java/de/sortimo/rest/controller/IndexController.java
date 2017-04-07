@@ -3,6 +3,7 @@ package de.sortimo.rest.controller;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
@@ -83,10 +84,10 @@ public class IndexController {
     		return new ResponseEntity<RestMessage>(message, message.getState());
     	}
     	
-    	User user = userRepo.findByUsername(authenticationRequest.getUsername()).get();
-
+    	Optional<User> tUser = userRepo.findByUsername(authenticationRequest.getUsername());
+    	
     	// Benutzer existiert nicht
-    	if (user == null) {
+    	if (!tUser.isPresent()) {
     		LOGGER.info("Login Versuch mit nicht existierendem Nutzer. Versuchter Benutzer: [{}]", authenticationRequest.getUsername());
 			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + authenticationRequest.getUsername() + "] not found");
 			return new ResponseEntity<RestMessage>(message, message.getState());
@@ -111,7 +112,7 @@ public class IndexController {
         // Reload password post-security so we can generate token
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
-        JwtUserDto jwtUser = userConverter.getJwtUser(user);
+        JwtUserDto jwtUser = userConverter.getJwtUser(tUser.get());
         
         String token = jwtTokenUtil.generateToken(userDetails, jwtUser);
 
