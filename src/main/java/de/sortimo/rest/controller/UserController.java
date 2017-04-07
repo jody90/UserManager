@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.UserConverter;
 import de.sortimo.rest.dto.ExtendedUserDto;
+import de.sortimo.rest.dto.JwtUserDto;
 import de.sortimo.rest.dto.SimpleUserDto;
 import de.sortimo.service.RightService;
 import de.sortimo.service.RoleService;
@@ -57,7 +58,7 @@ public class UserController {
 	 * @return Collection von User Objekten
 	 */
 	@RequestMapping(method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_showUsers')")
+	@PreAuthorize("hasAuthority('usermanager_showusers')")
 	public @ResponseBody ResponseEntity<?> getAllUsers() {
 		
 		Optional<Iterable<User>> usersCollection = userService.findAllWithoutGraph();
@@ -80,10 +81,10 @@ public class UserController {
 	 * Liest einen Benutzer anhand von username aus Datenbank
 	 * 
 	 * @param username
-	 * @return User Object
+	 * @return ExtendedUserDto Object
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.GET, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_showUser')")
+	@PreAuthorize("hasAuthority('usermanager_showuser')")
 	public @ResponseBody ResponseEntity<?> getUser(@PathVariable String username) {
 		
 		Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
@@ -101,6 +102,31 @@ public class UserController {
 		return new ResponseEntity<ExtendedUserDto>(user, HttpStatus.OK);
 		
 	}
+	
+	/**
+	 * Gibt einen JwtBenutzer zurück
+	 * 
+	 * @param username
+	 * @return JwtUser Object
+	 */
+	@RequestMapping(value="/jwt/{username}", method = RequestMethod.GET, produces="application/json")
+	@PreAuthorize("hasAuthority('usermanager_showuser')")
+	public @ResponseBody ResponseEntity<?> getJwtUser(@PathVariable String username) {
+		
+		Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
+
+		if (!tUser.isPresent()) {
+			LOGGER.info("GET JwtUser: Es wurde ein Benutzer [{}] angefragt der nicht in der Datenbank existiert.", username);
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] not found");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+		
+		JwtUserDto user = userConverter.getJwtUser(tUser.get());
+
+		// response zurueck geben
+		return new ResponseEntity<JwtUserDto>(user, HttpStatus.OK);
+		
+	}
 
 	/**
 	 * Legt einen neuen Benutzer an
@@ -111,7 +137,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(method = RequestMethod.POST, consumes="application/json", produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_createUser')")
+	@PreAuthorize("hasAuthority('usermanager_createuser')")
 	public @ResponseBody ResponseEntity<?> register(@RequestBody User pUser, HttpServletRequest request) throws MalformedURLException {
 		
 		Optional<User> tUser = userService.findByUsername(pUser.getUsername());
@@ -147,7 +173,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_deleteUser')")
+	@PreAuthorize("hasAuthority('usermanager_deleteuser')")
 	public @ResponseBody ResponseEntity<?> deleteUser(@PathVariable String username) {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -187,7 +213,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}", method = RequestMethod.PUT, consumes="application/json", produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_updateUser')")
+	@PreAuthorize("hasAuthority('usermanager_updateuser')")
 	public @ResponseBody ResponseEntity<?> update(@RequestBody User pUser, @PathVariable String username,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -218,7 +244,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/right/{rightName}", method = RequestMethod.PUT, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_userAddRight')")
+	@PreAuthorize("hasAuthority('usermanager_useraddright')")
 	public @ResponseBody ResponseEntity<?> userAddRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -258,7 +284,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/right/{rightName}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_userRemoveRight')")
+	@PreAuthorize("hasAuthority('usermanager_userremoveright')")
 	public @ResponseBody ResponseEntity<?> userRemoveRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -309,7 +335,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.PUT, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_userAddRole')")
+	@PreAuthorize("hasAuthority('usermanager_useraddrole')")
 	public @ResponseBody ResponseEntity<?> userAddRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);
@@ -349,7 +375,7 @@ public class UserController {
 	 * @throws MalformedURLException
 	 */
 	@RequestMapping(value="/{username}/role/{roleName}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_userRemoveRole')")
+	@PreAuthorize("hasAuthority('usermanager_userremoverole')")
 	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
 		Optional<User> tUser = userService.findByUsername(username);

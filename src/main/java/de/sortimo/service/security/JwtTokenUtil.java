@@ -4,17 +4,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import de.sortimo.rest.converter.UserConverter;
 import de.sortimo.rest.dto.JwtUserDto;
+import de.sortimo.service.UserService;
+import de.sortimo.service.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,6 +27,11 @@ public class JwtTokenUtil implements Serializable {
 	private static final long serialVersionUID = -5104791108765756775L;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class); 
+	
+	@Autowired
+	private UserService userService;
+	
+	private UserConverter userConverter = new UserConverter();
 	
 	static String CLAIM_KEY_USERNAME = "sub";
     static String CLAIM_KEY_AUDIENCE = "audience";
@@ -48,24 +55,26 @@ public class JwtTokenUtil implements Serializable {
     }
     
     public JwtUserDto getUserFromToken(String token) {
-    	JwtUserDto user;
-        ObjectMapper mapper = new ObjectMapper();
+    	
+    	JwtUserDto jwtUser = null;
         
         try {
             Claims claims = getClaimsFromToken(token);
-        
-            String userJson = claims.get("user") + "";
-            user = mapper.readValue(userJson, JwtUserDto.class);
+
+            String username = (String) claims.get("username");
             
-//            System.out.println("user: " + user);
+            Optional<User> tUser = userService.findByUsername(username);
             
+            if (tUser.isPresent()) {
+            	jwtUser = userConverter.getJwtUser(tUser.get());
+            }
         } catch (Exception e) {
         	
         	LOGGER.error("Cannot read UserFromToken:", e);
-            user = null;
+        	jwtUser = null;
         }
         
-        return user;
+        return jwtUser;
     }
 
     public Date getCreatedDateFromToken(String token) {
@@ -118,7 +127,7 @@ public class JwtTokenUtil implements Serializable {
         return new Date(System.currentTimeMillis() + expiration * 1000);
     }
 
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
@@ -129,18 +138,11 @@ public class JwtTokenUtil implements Serializable {
 
     public String generateToken(UserDetails userDetails, JwtUserDto user) {
 
-    	ObjectMapper mapper = new ObjectMapper();
-
     	Map<String, Object> claims = new HashMap<>();
     	claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
     	claims.put(CLAIM_KEY_CREATED, new Date());
-		
-    	try {
-			String userJson = mapper.writeValueAsString(user);
-			claims.put("user", userJson);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+    	
+    	claims.put("username", user.getUsername());
 		
         return generateToken(claims);
     }

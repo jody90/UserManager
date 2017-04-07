@@ -21,7 +21,7 @@ import de.sortimo.rest.dto.JwtUserDto;
 
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
-	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationTokenFilter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationTokenFilter.class);
     
 	@Autowired
 	MyUserDetailsService myUserDetailsService;
@@ -49,10 +49,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
             UserDetails userDetails = myUserDetailsService.buildUserFromToken(user);
             
-            if (jwtTokenUtil.validateToken(authToken, userDetails)) {
+            if (!jwtTokenUtil.isTokenExpired(authToken)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                logger.info("authenticated user " + user.getUsername() + ", setting security context");
+                LOGGER.info("authenticated user " + user.getUsername() + ", setting security context");
+                System.out.println(user);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
