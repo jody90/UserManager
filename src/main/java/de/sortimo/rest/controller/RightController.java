@@ -132,7 +132,7 @@ public class RightController {
 	 * @return
 	 */
 	@RequestMapping(value="/{rightName}", method = RequestMethod.DELETE, produces="application/json")
-	@PreAuthorize("hasAuthority('userManager_deleteRight')")
+	@PreAuthorize("hasAuthority('usermanager_deleteright')")
 	public @ResponseBody ResponseEntity<?> deleteRight(@PathVariable String rightName) {
 
 		Optional<Right> tRight = rightService.findByName(rightName);
