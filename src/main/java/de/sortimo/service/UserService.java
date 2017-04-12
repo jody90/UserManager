@@ -3,6 +3,7 @@ package de.sortimo.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,16 +44,32 @@ public class UserService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Timelog
-	public User save(String username, String password, String firstname, String lastname, String email) {
+	public User save(String username, String password, String firstname, String lastname, String email, Set<Role> roles, Set<Right> rights) {
 		
 		User finalUser = new User(username.toLowerCase(), new BCryptPasswordEncoder().encode(password), firstname, lastname, email);
 
 		userRepo.save(finalUser);
 		
+		System.out.println(roles);
+		
 		LOGGER.info("Benutzer [{}] gespeichert.", finalUser.getUsername());
 		
 		return finalUser;
 
+	}
+	
+	public User saveNew(String username, String password, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles) {
+		
+		User finalUser = new User(username.toLowerCase(), new BCryptPasswordEncoder().encode(password), firstname, lastname, email);
+
+		User user = userRepo.save(finalUser);
+		
+		user.setRights(rights);
+		user.setRoles(roles);
+		
+		LOGGER.info("Benutzer [{}] gespeichert.", finalUser.getUsername());
+		
+		return user;
 	}
 	
 	@Timelog
