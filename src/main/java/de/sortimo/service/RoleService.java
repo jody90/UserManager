@@ -1,6 +1,7 @@
 package de.sortimo.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -38,6 +39,12 @@ public class RoleService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Optional<Role> findByName(String name) {
 		return roleRepo.findByName(name);
+	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
+	public Optional<Role> findByRoleNameWithGraphInitialized(String name) {
+		return roleRepo.findByRoleNameWithGraphInitialized(name);
 	}
 
 	@Timelog
@@ -97,6 +104,21 @@ public class RoleService {
 		 tRole.getRights().remove(tRight);
 		 LOGGER.info("Recht {} wurde von Rolle {} entfernt.", rightName, roleName);
 		 return tRole;
+	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void removeRightFromRoles(Right right) {
+		
+		Optional<Iterable<Role>> tRoles = roleRepo.findAllRoles();
+		
+		if (tRoles.isPresent()) {
+			for (Role role : tRoles.get()) {
+				if (role.getRights().contains(right)) {
+					role.getRights().remove(right);
+				}
+			}
+		}
 	}
 	
 	@Timelog

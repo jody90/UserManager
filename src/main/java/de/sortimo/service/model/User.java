@@ -12,20 +12,22 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedEntityGraphs;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 
 import de.sortimo.base.persistence.AbstractEntity;
 
-@NamedEntityGraphs({
-	@NamedEntityGraph(name = "userFull", attributeNodes = {
-			@NamedAttributeNode(value = "rights"),
-			@NamedAttributeNode(value = "roles", subgraph = "rightsSubGraph")
-		},
-		subgraphs = @NamedSubgraph(name = "rightsSubGraph", attributeNodes = @NamedAttributeNode("rights"))
-	)
-})
+@NamedEntityGraph(name = "userFull", attributeNodes = {
+		@NamedAttributeNode(value = "rights"),
+		@NamedAttributeNode(value = "roles", subgraph = "rightsSubGraph")
+	},
+	subgraphs = @NamedSubgraph(name = "rightsSubGraph", attributeNodes = @NamedAttributeNode("rights"))
+)
+//@NamedEntityGraph(name = "userFull", attributeNodes = {
+//		@NamedAttributeNode(value = "rights"),
+//		@NamedAttributeNode(value = "roles")
+//	}
+//)
 @Entity
 @Table(name = "users")
 public class User extends AbstractEntity {
@@ -47,11 +49,11 @@ public class User extends AbstractEntity {
 	@Column(name = "email", nullable = false)
 	private String email;
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))
 	private Set<Right> rights = new HashSet<Right>(0);
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private Set<Role> roles = new HashSet<Role>(0);
 

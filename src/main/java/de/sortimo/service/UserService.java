@@ -114,9 +114,8 @@ public class UserService {
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Optional<User> userAddRight(String username, String rightName) {
-		Optional<User> tUser = userRepo.findByUsername(username);
+		Optional<User> tUser = userRepo.findByUsernameWithGraphInitialized(username);
 		Right tRight = rightService.findByName(rightName).get();
-		
 		tUser.get().getRights().add(tRight);
 		LOGGER.info("User [{}] wurde Recht [{}] hinzugefügt.", username, rightName);
 		return tUser;
@@ -125,7 +124,7 @@ public class UserService {
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Optional<User> removeRightFromUser(String username, String rightName) {
-		 Optional<User> tUser = userRepo.findByUsername(username);
+		 Optional<User> tUser = userRepo.findByUsernameWithGraphInitialized(username);
 		 Right tRight = rightService.findByName(rightName).get();
 		 tUser.get().getRights().remove(tRight);
 		 LOGGER.info("Recht [{}] wurde von User [{}] entfernt.", rightName, username);
@@ -135,7 +134,7 @@ public class UserService {
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Optional<User> userAddRole(String username, String roleName) {
-		Optional<User> tUser = userRepo.findByUsername(username);
+		Optional<User> tUser = userRepo.findByUsernameWithGraphInitialized(username);
 		Role tRole = roleService.findByName(roleName).get();
 		tUser.get().getRoles().add(tRole);
 		LOGGER.info("User [{}] wurde Rolle [{}] hinzugefügt.", username, roleName);
@@ -145,7 +144,7 @@ public class UserService {
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Optional<User> removeRoleFromUser(String username, String roleName) {
-		 Optional<User> tUser = userRepo.findByUsername(username);
+		 Optional<User> tUser = userRepo.findByUsernameWithGraphInitialized(username);
 		 Role tRole = roleService.findByName(roleName).get();
 		 tUser.get().getRoles().remove(tRole);
 		 LOGGER.info("Rolle [{}] wurde von User [{}] entfernt.", roleName, username);

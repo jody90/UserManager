@@ -10,10 +10,16 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
 
 import de.sortimo.base.persistence.AbstractEntity;
 
+@NamedEntityGraph(name = "roleFull", attributeNodes = {
+		@NamedAttributeNode(value = "rights")
+	}
+)
 @Entity
 @Table(name="roles")
 public class Role extends AbstractEntity {
@@ -26,7 +32,7 @@ public class Role extends AbstractEntity {
 	@Column(name = "description", nullable = true)
 	private String description;
 	
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "roles_rights", joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))   
 	private Set<Right> rights = new HashSet<Right>(0);
 	
@@ -38,8 +44,6 @@ public class Role extends AbstractEntity {
 		this.description = description;
 		this.rights = rights;
 	}
-
-
 
 	public Role(String name, String description) {
 		this.setName(name);

@@ -66,6 +66,7 @@ public class RightService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(Right right) {
 		rightRepo.delete(right);
+		roleService.removeRightFromRoles(right);
 		LOGGER.info("Recht {} gelöscht.", right.getName());
 	}
 

@@ -63,7 +63,7 @@ public class JwtTokenUtil implements Serializable {
 
             String username = (String) claims.get("username");
             
-            Optional<User> tUser = userService.findByUsername(username);
+            Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
             
             if (tUser.isPresent()) {
             	jwtUser = userConverter.getJwtUser(tUser.get());

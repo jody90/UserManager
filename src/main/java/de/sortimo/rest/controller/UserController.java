@@ -287,7 +287,7 @@ public class UserController {
 	@PreAuthorize("hasAuthority('usermanager_userremoveright')")
 	public @ResponseBody ResponseEntity<?> userRemoveRight(@PathVariable String username, @PathVariable String rightName,  HttpServletRequest request) throws MalformedURLException {
 
-		Optional<User> tUser = userService.findByUsername(username);
+		Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
 		
 		Optional<Right> tRight = rightService.findByName(rightName);
 		
@@ -378,7 +378,7 @@ public class UserController {
 	@PreAuthorize("hasAuthority('usermanager_userremoverole')")
 	public @ResponseBody ResponseEntity<?> userRemoveRole(@PathVariable String username, @PathVariable String roleName,  HttpServletRequest request) throws MalformedURLException {
 
-		Optional<User> tUser = userService.findByUsername(username);
+		Optional<User> tUser = userService.findByUsernameWithGraphInitialized(username);
 		
 		Optional<Role> tRole = roleService.findByName(roleName);
 		

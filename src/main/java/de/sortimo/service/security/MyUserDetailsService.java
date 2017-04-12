@@ -16,13 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import de.sortimo.rest.converter.UserConverter;
 import de.sortimo.rest.dto.JwtRightDto;
 import de.sortimo.rest.dto.JwtUserDto;
-import de.sortimo.service.repositories.UserRepository;
+import de.sortimo.service.UserService;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
 	@Autowired
-	private UserRepository userRepo;
+	private UserService userService;
 	
 	@Autowired
 	private UserConverter userConverter;
@@ -31,7 +31,7 @@ public class MyUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		de.sortimo.service.model.User userOrginal = userRepo.findByUsername(username).get();
+		de.sortimo.service.model.User userOrginal = userService.findByUsername(username).get();
 		
 		JwtUserDto user = userConverter.getJwtUser(userOrginal);
 

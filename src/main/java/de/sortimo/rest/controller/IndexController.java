@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import de.sortimo.base.rest.RestMessage;
 import de.sortimo.rest.converter.UserConverter;
 import de.sortimo.rest.dto.JwtUserDto;
+import de.sortimo.service.UserService;
 import de.sortimo.service.model.User;
-import de.sortimo.service.repositories.UserRepository;
 import de.sortimo.service.security.JwtAuthenticationRequest;
 import de.sortimo.service.security.JwtAuthenticationResponse;
 import de.sortimo.service.security.JwtTokenUtil;
@@ -54,7 +54,7 @@ public class IndexController {
     private MyUserDetailsService myUserDetailsService;
 	
 	@Autowired
-	private UserRepository userRepo;
+	private UserService userService;
 	
 	@Autowired
 	private UserConverter userConverter;
@@ -84,7 +84,7 @@ public class IndexController {
     		return new ResponseEntity<RestMessage>(message, message.getState());
     	}
     	
-    	Optional<User> tUser = userRepo.findByUsername(authenticationRequest.getUsername());
+    	Optional<User> tUser = userService.findByUsernameWithGraphInitialized(authenticationRequest.getUsername());
     	
     	// Benutzer existiert nicht
     	if (!tUser.isPresent()) {

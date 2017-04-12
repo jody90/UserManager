@@ -116,7 +116,7 @@ public class RoleController {
 	@PreAuthorize("hasAuthority('usermanager_showrole')")
 	public @ResponseBody ResponseEntity<?> getRole(@PathVariable String roleName) {
 
-		Optional<Role> tRole = roleService.findByName(roleName);
+		Optional<Role> tRole = roleService.findByRoleNameWithGraphInitialized(roleName);
 
 		// pruefen ob Rolle vorhanden ist
 		if (!tRole.isPresent()) {
