@@ -24,6 +24,9 @@ public class RightService {
 	private RoleService roleService; 
 	
 	@Autowired
+	private UserService userService;
+	
+	@Autowired
 	private RightRepository rightRepo;
 
 	@Timelog
@@ -67,6 +70,7 @@ public class RightService {
 	public void delete(Right right) {
 		rightRepo.delete(right);
 		roleService.removeRightFromRoles(right);
+		userService.removeRightFromUsers(right);
 		LOGGER.info("Recht {} gelöscht.", right.getName());
 	}
 

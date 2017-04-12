@@ -153,6 +153,36 @@ public class UserService {
 	
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
+	public void removeRightFromUsers(Right right) {
+		
+		Optional<Iterable<User>> tUsers = userRepo.findAllWithoutGraph();
+		
+		if (tUsers.isPresent()) {
+			for (User user : tUsers.get()) {
+				if (user.getRights().contains(right)) {
+					user.getRights().remove(right);
+				}
+			}
+		}
+	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void removeRoleFromUsers(Role role) {
+		
+		Optional<Iterable<User>> tUsers = userRepo.findAllWithoutGraph();
+		
+		if (tUsers.isPresent()) {
+			for (User user : tUsers.get()) {
+				if (user.getRights().contains(role)) {
+					user.getRights().remove(role);
+				}
+			}
+		}
+	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void createAdminUser() {
 		
 		final String SUPERADMIN = "superadmin";

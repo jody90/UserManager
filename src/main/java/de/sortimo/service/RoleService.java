@@ -27,6 +27,9 @@ public class RoleService {
 	
 	@Autowired
 	private RightService rightService;
+	
+	@Autowired
+	private UserService userService;
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -74,6 +77,7 @@ public class RoleService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(Role role) {
 		roleRepo.delete(role);
+		userService.removeRoleFromUsers(role);
 		LOGGER.info("Rolle {} gelöscht.", role.getName());
 	}
 
