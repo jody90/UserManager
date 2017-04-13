@@ -43,6 +43,22 @@ public class UserService {
 	
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
+	public void changePassword(String username, String password) {
+
+		Validate.notNull(password);
+		
+		Optional<User> tUser = userRepo.findByUsername(username);
+		
+		if (tUser.isPresent()) {
+			tUser.get().setPassword(new BCryptPasswordEncoder().encode(password));
+		}
+		
+		LOGGER.info("Passwort für Benutzer [{}] geändert.", username);
+
+	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
 	public User saveNew(String username, String password, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles) {
 		
 		Validate.notNull(username);

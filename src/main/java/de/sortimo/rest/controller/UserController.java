@@ -144,7 +144,7 @@ public class UserController {
 		
 		// pruefen ob benutzer bereits vorhanden ist
 		if (tUser.isPresent()) {
-			LOGGER.info("POST User: Es wurde ein verucht einen Benutzer [{}] anzulegen, der schon existiert.", pUser.getUsername());
+			LOGGER.info("POST User: Es wurde verucht einen Benutzer [{}] anzulegen, der schon existiert.", pUser.getUsername());
 			RestMessage message = new RestMessage(HttpStatus.CONFLICT, "User [" + pUser.getUsername() + "] already defined");
 			return new ResponseEntity<RestMessage>(message, message.getState());
 		}
@@ -163,6 +163,33 @@ public class UserController {
 
 	    // response zurueck geben
 	    return new ResponseEntity<ExtendedUserDto>(user, headers, HttpStatus.CREATED);
+
+	}
+	
+	/**
+	 * Ändert das Passwort des Benutzers
+	 * 
+	 * @param user
+	 * @param request
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	@RequestMapping(value="/{username}", method = RequestMethod.POST, consumes="application/json", produces="application/json")
+	public @ResponseBody ResponseEntity<?> changePassword(@PathVariable String username, @RequestBody String password) throws MalformedURLException {
+		
+		Optional<User> tUser = userService.findByUsername(username);
+		
+		// pruefen ob benutzer bereits vorhanden ist
+		if (!tUser.isPresent()) {
+			LOGGER.info("POST User Passwort: Benuzter [{}] existiert nicht. Kann Passwort nicht ändern", username);
+			RestMessage message = new RestMessage(HttpStatus.NOT_FOUND, "User [" + username + "] does not exist");
+			return new ResponseEntity<RestMessage>(message, message.getState());
+		}
+		
+		userService.changePassword(username, password);
+
+		RestMessage message = new RestMessage(HttpStatus.OK, "Password for User [" + username + "] changed");
+		return new ResponseEntity<RestMessage>(message, message.getState());
 
 	}
 	
