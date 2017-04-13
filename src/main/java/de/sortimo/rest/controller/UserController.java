@@ -150,7 +150,7 @@ public class UserController {
 		}
 		
 		// Benutzer speichern
-		User savedUser = userService.saveNew(pUser.getUsername(), "1", pUser.getFirstname(), pUser.getLastname(), pUser.getEmail(), pUser.getRights(), pUser.getRoles());
+		User savedUser = userService.saveNew(pUser.getUsername(), pUser.getPassword(), pUser.getFirstname(), pUser.getLastname(), pUser.getEmail(), pUser.getRights(), pUser.getRoles());
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());

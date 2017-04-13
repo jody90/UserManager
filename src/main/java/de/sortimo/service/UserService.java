@@ -1,6 +1,7 @@
 package de.sortimo.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,33 +42,34 @@ public class UserService {
 	public Optional<Iterable<User>> findAllWithoutGraph() {
 		return userRepo.findAllWithoutGraph();
 	}
-
-	@Transactional(propagation = Propagation.REQUIRED)
-	@Timelog
-	public User save(String username, String password, String firstname, String lastname, String email, Set<Role> roles, Set<Right> rights) {
-		
-		User finalUser = new User(username.toLowerCase(), new BCryptPasswordEncoder().encode(password), firstname, lastname, email);
-
-		userRepo.save(finalUser);
-		
-		System.out.println(roles);
-		
-		LOGGER.info("Benutzer [{}] gespeichert.", finalUser.getUsername());
-		
-		return finalUser;
-
-	}
 	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
 	public User saveNew(String username, String password, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles) {
 		
-		User finalUser = new User(username.toLowerCase(), new BCryptPasswordEncoder().encode(password), firstname, lastname, email);
+		String tPassword = "1";
+		
+		if (password != null && !password.trim().isEmpty()) {
+			tPassword = password;
+		}
+		
+		User user = new User(username.toLowerCase(), new BCryptPasswordEncoder().encode(tPassword), firstname, lastname, email);
 
-		User user = userRepo.save(finalUser);
+		userRepo.save(user);
 		
-		user.setRights(rights);
-		user.setRoles(roles);
+		if (rights != null) {
+			for (Right right : rights) {
+				user.getRights().add(rightService.findByName(right.getName()).get());	
+			}
+		}
 		
-		LOGGER.info("Benutzer [{}] gespeichert.", finalUser.getUsername());
+		if (roles != null) {
+			for (Role role : roles) {
+				user.getRoles().add(roleService.findByName(role.getName()).get());	
+			}
+		}
+		
+		LOGGER.info("Benutzer [{}] gespeichert.", user.getUsername());
 		
 		return user;
 	}
@@ -103,7 +105,7 @@ public class UserService {
 		
 		Validate.notNull(user.getUsername());
 		
-		Optional<User> tUser = this.findByUsername(userName);
+		Optional<User> tUser = this.findByUsernameWithGraphInitialized(userName);
 		
 		if (tUser.isPresent()) {
 			
@@ -122,10 +124,55 @@ public class UserService {
 			if (StringUtils.isNotEmpty(user.getEmail())) {
 				updateUser.setEmail(user.getEmail());
 			}
+			
+			if (user.getRights() != null) {
+				for (Right right : user.getRights()) {
+					user.getRights().add(rightService.findByName(right.getName()).get());	
+				}
+			}
+			
+			if (user.getRoles() != null) {
+				
+				Set<Role> tRemoveRoles = new HashSet<>();
+				
+				for (Role role : user.getRoles()) {
+					if (!updateUser.getRoles().contains(role)) {
+						this.userAddRole(updateUser.getUsername(), role.getName());
+					}
+				}
+				
+				for (Role role : updateUser.getRoles()) {
+					if (!user.getRoles().contains(role)) {
+						tRemoveRoles.add(role);
+					}
+				}
+				
+				updateUser.getRights().removeAll(tRemoveRoles);
+				
+			}
+			
+			if (user.getRights() != null) {
+				
+				Set<Right> tRemoveRights = new HashSet<>();
+				
+				for (Right right : user.getRights()) {
+					if (!updateUser.getRights().contains(right)) {
+						this.userAddRight(updateUser.getUsername(), right.getName());
+					}
+				}
+				
+				for (Right right : updateUser.getRights()) {
+					if (!user.getRights().contains(right)) {
+						tRemoveRights.add(right);
+					}
+				}
+				
+				updateUser.getRights().removeAll(tRemoveRights);
+			}
+			
 		}
 		
 		return tUser;
-		
 	}
 	
 	@Timelog

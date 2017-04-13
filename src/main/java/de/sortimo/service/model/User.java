@@ -23,11 +23,6 @@ import de.sortimo.base.persistence.AbstractEntity;
 	},
 	subgraphs = @NamedSubgraph(name = "rightsSubGraph", attributeNodes = @NamedAttributeNode("rights"))
 )
-//@NamedEntityGraph(name = "userFull", attributeNodes = {
-//		@NamedAttributeNode(value = "rights"),
-//		@NamedAttributeNode(value = "roles")
-//	}
-//)
 @Entity
 @Table(name = "users")
 public class User extends AbstractEntity {
@@ -49,11 +44,11 @@ public class User extends AbstractEntity {
 	@Column(name = "email", nullable = false)
 	private String email;
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "users_rights", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "right_id", referencedColumnName = "id"))
 	private Set<Right> rights = new HashSet<Right>(0);
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private Set<Role> roles = new HashSet<Role>(0);
 
@@ -66,26 +61,6 @@ public class User extends AbstractEntity {
 		this.setFirstname(firstname);
 		this.setLastname(lastname);
 		this.setEmail(email);
-	}
-
-	public Set<Right> getRights() {
-		return rights;
-	}
-
-	public void setRights(Set<Right> rights) {
-		this.rights = rights;
-	}
-
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
-	public String getUsername() {
-		return username;
 	}
 
 	public void setUsername(String username) {
@@ -123,12 +98,31 @@ public class User extends AbstractEntity {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public Set<Right> getRights() {
+		return rights;
+	}
+
+	public void setRights(Set<Right> rights) {
+		this.rights = rights;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+	public String getUsername() {
+		return username;
+	}
 
 	@Override
 	public String toString() {
 		return "User [username=" + username + ", password=" + password + ", firstname=" + firstname + ", lastname="
-				+ lastname + ", email=" + email + ", rights=" + rights + ", roles=" + roles + ", toString()="
-				+ super.toString() + "]";
+				+ lastname + ", email=" + email + ", rights=" + rights + ", roles=" + roles + "]";
 	}
 
 }
