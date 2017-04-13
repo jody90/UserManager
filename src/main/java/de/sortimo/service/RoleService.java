@@ -1,12 +1,13 @@
 package de.sortimo.service;
 
+import java.util.HashSet;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -49,14 +50,35 @@ public class RoleService {
 	public Optional<Role> findByRoleNameWithGraphInitialized(String name) {
 		return roleRepo.findByRoleNameWithGraphInitialized(name);
 	}
+	
+	@Timelog
+	@Transactional(propagation = Propagation.REQUIRED)
+	public Role saveNew(String name, String description, Set<Right> rights) {
+		
+		Validate.notNull(name);
+		
+		Role role = new Role(name.toLowerCase(), description);
+
+		roleRepo.save(role);
+		
+		if (rights != null) {
+			for (Right right : rights) {
+				role.getRights().add(rightService.findByName(right.getName()).get());	
+			}
+		}
+		
+		LOGGER.info("Rolle [{}] gespeichert.", role.getName());
+		
+		return role;
+	}
 
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
-	public Optional<Role> update(String roleName, Role role) {
+	public Optional<Role> update(String rolename, Role role) {
 		
 		Validate.notNull(role.getName());
 		
-		Optional<Role> tRole = this.findByName(roleName);
+		Optional<Role> tRole = this.findByName(rolename);
 		
 		if (tRole.isPresent()) {
 			
@@ -67,10 +89,29 @@ public class RoleService {
 			if (StringUtils.isNotEmpty(role.getDescription())) {
 				updateRole.setDescription(role.getDescription());
 			}
+
+			if (role.getRights() != null) {
+				
+				Set<Right> tRemoveRights = new HashSet<>();
+				
+				for (Right right : role.getRights()) {
+					if (!updateRole.getRights().contains(right)) {
+						this.roleAddRight(updateRole.getName(), right.getName());
+					}
+				}
+				
+				for (Right right : updateRole.getRights()) {
+					if (!role.getRights().contains(right)) {
+						tRemoveRights.add(right);
+					}
+				}
+				
+				updateRole.getRights().removeAll(tRemoveRights);
+			}
+			
 		}
 		
 		return tRole;
-		
 	}
 
 	@Timelog
@@ -79,15 +120,6 @@ public class RoleService {
 		roleRepo.delete(role);
 		userService.removeRoleFromUsers(role);
 		LOGGER.info("Rolle {} gelöscht.", role.getName());
-	}
-
-	@Timelog
-	@Transactional(propagation = Propagation.REQUIRED)
-	public Role save(String name, String description) {
-		Role finalRole = new Role(name.toLowerCase(), description);
-		roleRepo.save(finalRole);
-		LOGGER.info("Rolle {} gespeichert.", name);
-		return finalRole;
 	}
 
 	@Timelog

@@ -1,8 +1,6 @@
 package de.sortimo.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,6 +44,11 @@ public class UserService {
 	@Timelog
 	@Transactional(propagation = Propagation.REQUIRED)
 	public User saveNew(String username, String password, String firstname, String lastname, String email, Set<Right> rights, Set<Role> roles) {
+		
+		Validate.notNull(username);
+		Validate.notNull(firstname);
+		Validate.notNull(lastname);
+		Validate.notNull(email);
 		
 		String tPassword = "1";
 		
@@ -123,12 +126,6 @@ public class UserService {
 			
 			if (StringUtils.isNotEmpty(user.getEmail())) {
 				updateUser.setEmail(user.getEmail());
-			}
-			
-			if (user.getRights() != null) {
-				for (Right right : user.getRights()) {
-					user.getRights().add(rightService.findByName(right.getName()).get());	
-				}
 			}
 			
 			if (user.getRoles() != null) {
@@ -257,7 +254,7 @@ public class UserService {
 			
 			LOGGER.info("User: {} not Found! Create it.", SUPERADMIN);
 			
-			List<Right> tRights = new ArrayList<>();
+			Set<Right> tRights = new HashSet<>();
 			tRights.add(new Right("userManager_showUsers", "Darf alle User anzeigen"));
 			tRights.add(new Right("userManager_showUser", "Darf einen User anzeigen"));
 			tRights.add(new Right("userManager_createUser", "Darf einen User anlegen"));
@@ -288,9 +285,9 @@ public class UserService {
 			
 			if (!tRole.isPresent()) {
 				
-				LOGGER.info("Role: superAdmin not Found! Create it.");				
+				LOGGER.info("Role: superAdmin not Found! Create it.");		
 				
-				role = roleService.save("superAdmin", "Gottgleiches Wesen");
+				role = roleService.saveNew("superAdmin", "Gottgleiches Wesen", tRights);
 			}	
 			
 			for (Right right : tRights) {

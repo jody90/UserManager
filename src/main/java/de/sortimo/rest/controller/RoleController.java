@@ -90,7 +90,7 @@ public class RoleController {
 		}	
 		
 		// Recht speichern
-		Role savedRole = roleService.save(tRole.getName(), tRole.getDescription());
+		Role savedRole = roleService.saveNew(tRole.getName(), tRole.getDescription(), tRole.getRights());
 
 		// Http Header fuer response vorbereiten
 		URL url = new URL(request.getRequestURL().toString());
